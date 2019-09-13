@@ -26,6 +26,8 @@ void SWI1_EGU1_IRQHandler(void) {
 
 void GPIOTE_IRQHandler(void) {
     NRF_GPIOTE->EVENTS_IN[0] = 0;
+    gpio_config(24, 1); //led
+    gpio_set(24);
 }
 
 int main(void) {
@@ -36,6 +38,13 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
+
+  NRF_GPIOTE->CONFIG[0] = 28;
+  NRF_GPIOTE->INTENSET = 1;
+
+  NVIC_EnableIRQ(GPIOTE_IRQn);
+
+  
 
   // loop forever
   while (1) {
