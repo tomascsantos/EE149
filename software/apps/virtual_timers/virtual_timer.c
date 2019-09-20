@@ -9,22 +9,40 @@
 
 #include "virtual_timer.h"
 #include "virtual_timer_linked_list.h"
-
 // This is the interrupt handler that fires on a compare event
 void TIMER4_IRQHandler(void) {
   // This should always be the first line of the interrupt handler!
   // It clears the event so that it doesn't happen again
-  NRF_TIMER4->EVENTS_COMPARE[0] = 0;
+  NRF_TIMER4->EVENTS_COMPARE[1] = 0;
 
   // Place your interrupt handler code here
+  list_update();
+  return;
+}
 
+void list_update(){
+  __disable_irq();
+  node_t *timer;
+  while((timer = list_get_first())->timer_value <= read_timer()) {
+    list_remove(timer);
+    timer->func();
+    if(timer->repeat){
+      timer->timer_value = timer->delay + timer->timer_value;
+      list_insert_sorted(timer);
+    } else {
+      free(timer);
+    }
+  }
+    NRF_TIMER4->CC[1] = list_get_first()->timer_value;
+  __enable_irq();
 }
 
 // Read the current value of the timer counter
-uint32_t read_timer(void) {
 
+uint32_t read_timer(void) {
+  NRF_TIMER4->TASKS_CAPTURE[0] |= 1;
   // Should return the value of the internal counter for TIMER4
-  return 0;
+  return NRF_TIMER4->CC[0];
 }
 
 // Initialize TIMER4 as a free running timer
@@ -35,7 +53,16 @@ uint32_t read_timer(void) {
 // 5) Start the timer
 void virtual_timer_init(void) {
   // Place your timer initialization code here
+  NRF_TIMER4->BITMODE |= 3;
+  NRF_TIMER4->PRESCALER |= 4;
+
+  NRF_TIMER4->INTENSET |= 1<<17;
+  NVIC_EnableIRQ(TIMER4_IRQn);
+
+  NRF_TIMER4->TASKS_CLEAR |= 1;
+  NRF_TIMER4->TASKS_START |= 1;
 }
+
 
 // Start a timer. This function is called for both one-shot and repeated timers
 // To start a timer:
@@ -54,9 +81,22 @@ void virtual_timer_init(void) {
 // testing it over time.
 static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, bool repeated) {
 
+  node_t *timer = malloc(sizeof(node_t));
+  timer->repeat = repeated;
+  timer->delay = microseconds;
+  timer->func = cb;
+  uint32_t time = read_timer() + microseconds;
+  printf("time is set to: %d\n", time);
+  timer->timer_value = time;
+
+  __disable_irq();
+  list_insert_sorted(timer);
+  NRF_TIMER4->CC[1] = list_get_first()->timer_value;
+  __enable_irq();
   // Return a unique timer ID. (hint: What is guaranteed unique about the timer you have created?)
-  return 0;
+  return timer;
 }
+
 
 // You do not need to modify this function
 // Instead, implement timer_start
@@ -74,5 +114,10 @@ uint32_t virtual_timer_start_repeated(uint32_t microseconds, virtual_timer_callb
 // Make sure you don't cause linked list consistency issues!
 // Do not forget to free removed timers.
 void virtual_timer_cancel(uint32_t timer_id) {
+  __disable_irq();
+  list_remove((node_t*) timer_id);
+  NRF_TIMER4->CC[1] = list_get_first()->timer_value;
+  list_update();
+  __enable_irq();
 }
 

@@ -20,6 +20,7 @@
 
 #include "buckler.h"
 #include "virtual_timer.h"
+#include "virtual_timer_linked_list.h"
 
 void led0_toggle() {
     nrf_gpio_pin_toggle(BUCKLER_LED0);
@@ -54,10 +55,18 @@ int main(void) {
   // Setup some timers and see what happens
   //virtual_timer_start_repeated(1000000, led0_toggle);
   //virtual_timer_start_repeated(2000000, led1_toggle);
+  virtual_timer_start_repeated(1200000, led0_toggle);
+  uint32_t cancel2 = virtual_timer_start_repeated(1000000, led1_toggle);
+  uint32_t cancel = virtual_timer_start_repeated(500000, led2_toggle);
 
   // loop forever
+  int count = 0;
+  nrf_delay_ms(3000);
+  virtual_timer_cancel(cancel);
+  virtual_timer_cancel(cancel2);
+  
   while (1) {
-    nrf_delay_ms(1000);
+    __WFI();
   }
 }
 
