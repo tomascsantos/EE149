@@ -20,6 +20,9 @@ typedef struct node_t {
 
     // timer value in microseconds. Used to sort the list. Must be initialized
     //  when the node is created
+    bool repeat;
+    virtual_timer_callback_t func;
+    uint32_t delay;
     uint32_t timer_value;
 
     // pointer to next node in list. Do not change this field for a node or you
