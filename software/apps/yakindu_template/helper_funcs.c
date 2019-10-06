@@ -74,18 +74,17 @@ void stop_kobuki(){
 
 
 bool is_left_cliff(){
-  // Your code here
-  return false;
+  return sensors.cliffLeft;
 }
 
 bool is_center_cliff(){
-  // Your code here
-  return false;
+	return sensors.cliffCenter;
+
 }
 
 bool is_right_cliff(){
-  // Your code here
-  return false;
+	 return sensors.cliffRight;
+
 }
 
 bool is_left_bumper(){
@@ -166,13 +165,13 @@ void print_turn(turns current_turn){
 }
 
 float read_tilt_theta(void){
-  // Your code here
-  return 0.0;
+  mpu9250_measurement_t a = mpu9250_read_accelerometer();
+  return atan(a.x_axis / sqrt(a.y_axis * a.y_axis + a.z_axis * a.z_axis));
 }
 
 float read_tilt_psi(void){
-  // Your code here
-  return 0.0;
+	  mpu9250_measurement_t a = mpu9250_read_accelerometer();
+	  return atan(a.y_axis / sqrt(a.x_axis * a.x_axis + a.z_axis * a.z_axis));
 }
 
 float get_abs(float var){
