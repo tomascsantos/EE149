@@ -65,11 +65,11 @@ float update_dist(float dist, uint16_t prev_encoder, bool is_forward){
 }
 
 void drive_kobuki(uint16_t left_wheel, uint16_t right_wheel){
-  // Your code here
+	  kobukiDriveDirect(left_wheel, right_wheel);
 }
 
 void stop_kobuki(){
-  // Your code here
+	  kobukiDriveDirect(0, 0);
 }
 
 
