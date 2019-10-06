@@ -10,17 +10,27 @@
 static void enact_main_region_ACTIVE(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Drive(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Turn(Robot_template* handle);
+static void enact_main_region_ACTIVE_r1_Reverse(Robot_template* handle);
+static void enact_main_region_ACTIVE_r1_Reorient(Robot_template* handle);
+static void enact_main_region_ACTIVE_r1_Done(Robot_template* handle);
 static void enact_main_region_OFF(Robot_template* handle);
 static void exact_main_region_ACTIVE_r1_Turn(Robot_template* handle);
+static void exact_main_region_ACTIVE_r1_Reorient(Robot_template* handle);
 static void enseq_main_region_ACTIVE_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Drive_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Turn_default(Robot_template* handle);
+static void enseq_main_region_ACTIVE_r1_Reverse_default(Robot_template* handle);
+static void enseq_main_region_ACTIVE_r1_Reorient_default(Robot_template* handle);
+static void enseq_main_region_ACTIVE_r1_Done_default(Robot_template* handle);
 static void enseq_main_region_OFF_default(Robot_template* handle);
 static void enseq_main_region_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_default(Robot_template* handle);
 static void exseq_main_region_ACTIVE(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Drive(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Turn(Robot_template* handle);
+static void exseq_main_region_ACTIVE_r1_Reverse(Robot_template* handle);
+static void exseq_main_region_ACTIVE_r1_Reorient(Robot_template* handle);
+static void exseq_main_region_ACTIVE_r1_Done(Robot_template* handle);
 static void exseq_main_region_OFF(Robot_template* handle);
 static void exseq_main_region(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1(Robot_template* handle);
@@ -30,6 +40,9 @@ static sc_boolean react(Robot_template* handle);
 static sc_boolean main_region_ACTIVE_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_ACTIVE_r1_Drive_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_ACTIVE_r1_Turn_react(Robot_template* handle, const sc_boolean try_transition);
+static sc_boolean main_region_ACTIVE_r1_Reverse_react(Robot_template* handle, const sc_boolean try_transition);
+static sc_boolean main_region_ACTIVE_r1_Reorient_react(Robot_template* handle, const sc_boolean try_transition);
+static sc_boolean main_region_ACTIVE_r1_Done_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean try_transition);
 static void clearInEvents(Robot_template* handle);
 static void clearOutEvents(Robot_template* handle);
@@ -58,6 +71,13 @@ void robot_template_init(Robot_template* handle)
 	handle->iface.curr_state = OFF;
 	handle->iface.right_speed = 140;
 	handle->iface.left_speed = 150;
+	handle->iface.cliff_l = bool_false;
+	handle->iface.cliff_r = bool_false;
+	handle->iface.psi = 0;
+	handle->iface.theta = 0;
+	handle->iface.angle_d = 0;
+	handle->iface.uphill = bool_true;
+	handle->iface.direction = 1;
 }
 
 void robot_template_enter(Robot_template* handle)
@@ -84,6 +104,21 @@ void robot_template_runCycle(Robot_template* handle)
 		case Robot_template_main_region_ACTIVE_r1_Turn:
 		{
 			main_region_ACTIVE_r1_Turn_react(handle, bool_true);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Reverse:
+		{
+			main_region_ACTIVE_r1_Reverse_react(handle, bool_true);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Reorient:
+		{
+			main_region_ACTIVE_r1_Reorient_react(handle, bool_true);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Done:
+		{
+			main_region_ACTIVE_r1_Done_react(handle, bool_true);
 			break;
 		}
 		case Robot_template_main_region_OFF:
@@ -135,7 +170,7 @@ sc_boolean robot_template_isStateActive(const Robot_template* handle, Robot_temp
 	{
 		case Robot_template_main_region_ACTIVE :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] >= Robot_template_main_region_ACTIVE
-				&& handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] <= Robot_template_main_region_ACTIVE_r1_Turn);
+				&& handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] <= Robot_template_main_region_ACTIVE_r1_Done);
 			break;
 		case Robot_template_main_region_ACTIVE_r1_Drive :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_DRIVE] == Robot_template_main_region_ACTIVE_r1_Drive
@@ -143,6 +178,18 @@ sc_boolean robot_template_isStateActive(const Robot_template* handle, Robot_temp
 			break;
 		case Robot_template_main_region_ACTIVE_r1_Turn :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_TURN] == Robot_template_main_region_ACTIVE_r1_Turn
+			);
+			break;
+		case Robot_template_main_region_ACTIVE_r1_Reverse :
+			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_REVERSE] == Robot_template_main_region_ACTIVE_r1_Reverse
+			);
+			break;
+		case Robot_template_main_region_ACTIVE_r1_Reorient :
+			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_REORIENT] == Robot_template_main_region_ACTIVE_r1_Reorient
+			);
+			break;
+		case Robot_template_main_region_ACTIVE_r1_Done :
+			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_DONE] == Robot_template_main_region_ACTIVE_r1_Done
 			);
 			break;
 		case Robot_template_main_region_OFF :
@@ -222,6 +269,62 @@ void robot_templateIface_set_left_speed(Robot_template* handle, uint16_t value)
 {
 	handle->iface.left_speed = value;
 }
+sc_boolean robot_templateIface_get_cliff_l(const Robot_template* handle)
+{
+	return handle->iface.cliff_l;
+}
+void robot_templateIface_set_cliff_l(Robot_template* handle, sc_boolean value)
+{
+	handle->iface.cliff_l = value;
+}
+sc_boolean robot_templateIface_get_cliff_r(const Robot_template* handle)
+{
+	return handle->iface.cliff_r;
+}
+void robot_templateIface_set_cliff_r(Robot_template* handle, sc_boolean value)
+{
+	handle->iface.cliff_r = value;
+}
+float robot_templateIface_get_psi(const Robot_template* handle)
+{
+	return handle->iface.psi;
+}
+void robot_templateIface_set_psi(Robot_template* handle, float value)
+{
+	handle->iface.psi = value;
+}
+float robot_templateIface_get_theta(const Robot_template* handle)
+{
+	return handle->iface.theta;
+}
+void robot_templateIface_set_theta(Robot_template* handle, float value)
+{
+	handle->iface.theta = value;
+}
+float robot_templateIface_get_angle_d(const Robot_template* handle)
+{
+	return handle->iface.angle_d;
+}
+void robot_templateIface_set_angle_d(Robot_template* handle, float value)
+{
+	handle->iface.angle_d = value;
+}
+sc_boolean robot_templateIface_get_uphill(const Robot_template* handle)
+{
+	return handle->iface.uphill;
+}
+void robot_templateIface_set_uphill(Robot_template* handle, sc_boolean value)
+{
+	handle->iface.uphill = value;
+}
+uint16_t robot_templateIface_get_direction(const Robot_template* handle)
+{
+	return handle->iface.direction;
+}
+void robot_templateIface_set_direction(Robot_template* handle, uint16_t value)
+{
+	handle->iface.direction = value;
+}
 
 /* implementations of all internal functions */
 
@@ -238,6 +341,8 @@ static void enact_main_region_ACTIVE_r1_Drive(Robot_template* handle)
 	/* Entry action for state 'Drive'. */
 	handle->iface.curr_state = DRIVING;
 	handle->iface.distance = 0;
+	handle->iface.cliff_l = bool_false;
+	handle->iface.cliff_r = bool_false;
 }
 
 /* Entry action for state 'Turn'. */
@@ -249,17 +354,52 @@ static void enact_main_region_ACTIVE_r1_Turn(Robot_template* handle)
 	start_gyro();
 }
 
+/* Entry action for state 'Reverse'. */
+static void enact_main_region_ACTIVE_r1_Reverse(Robot_template* handle)
+{
+	/* Entry action for state 'Reverse'. */
+	handle->iface.curr_state = BACKUP;
+	handle->iface.distance = 0;
+}
+
+/* Entry action for state 'Reorient'. */
+static void enact_main_region_ACTIVE_r1_Reorient(Robot_template* handle)
+{
+	/* Entry action for state 'Reorient'. */
+	handle->iface.curr_state = REORIENT;
+	handle->iface.angle = 0;
+	start_gyro();
+}
+
+/* Entry action for state 'Done'. */
+static void enact_main_region_ACTIVE_r1_Done(Robot_template* handle)
+{
+	/* Entry action for state 'Done'. */
+	handle->iface.curr_state = FUYCKYAH;
+	handle->iface.uphill = bool_true;
+}
+
 /* Entry action for state 'OFF'. */
 static void enact_main_region_OFF(Robot_template* handle)
 {
 	/* Entry action for state 'OFF'. */
 	handle->iface.pushed = bool_false;
+	handle->iface.cliff_l = bool_false;
+	handle->iface.cliff_r = bool_false;
 }
 
 /* Exit action for state 'Turn'. */
 static void exact_main_region_ACTIVE_r1_Turn(Robot_template* handle)
 {
 	/* Exit action for state 'Turn'. */
+	stop_gyro();
+	handle->iface.direction = 1;
+}
+
+/* Exit action for state 'Reorient'. */
+static void exact_main_region_ACTIVE_r1_Reorient(Robot_template* handle)
+{
+	/* Exit action for state 'Reorient'. */
 	stop_gyro();
 }
 
@@ -286,6 +426,33 @@ static void enseq_main_region_ACTIVE_r1_Turn_default(Robot_template* handle)
 	/* 'default' enter sequence for state Turn */
 	enact_main_region_ACTIVE_r1_Turn(handle);
 	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Turn;
+	handle->stateConfVectorPosition = 0;
+}
+
+/* 'default' enter sequence for state Reverse */
+static void enseq_main_region_ACTIVE_r1_Reverse_default(Robot_template* handle)
+{
+	/* 'default' enter sequence for state Reverse */
+	enact_main_region_ACTIVE_r1_Reverse(handle);
+	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Reverse;
+	handle->stateConfVectorPosition = 0;
+}
+
+/* 'default' enter sequence for state Reorient */
+static void enseq_main_region_ACTIVE_r1_Reorient_default(Robot_template* handle)
+{
+	/* 'default' enter sequence for state Reorient */
+	enact_main_region_ACTIVE_r1_Reorient(handle);
+	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Reorient;
+	handle->stateConfVectorPosition = 0;
+}
+
+/* 'default' enter sequence for state Done */
+static void enseq_main_region_ACTIVE_r1_Done_default(Robot_template* handle)
+{
+	/* 'default' enter sequence for state Done */
+	enact_main_region_ACTIVE_r1_Done(handle);
+	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Done;
 	handle->stateConfVectorPosition = 0;
 }
 
@@ -336,6 +503,31 @@ static void exseq_main_region_ACTIVE_r1_Turn(Robot_template* handle)
 	exact_main_region_ACTIVE_r1_Turn(handle);
 }
 
+/* Default exit sequence for state Reverse */
+static void exseq_main_region_ACTIVE_r1_Reverse(Robot_template* handle)
+{
+	/* Default exit sequence for state Reverse */
+	handle->stateConfVector[0] = Robot_template_last_state;
+	handle->stateConfVectorPosition = 0;
+}
+
+/* Default exit sequence for state Reorient */
+static void exseq_main_region_ACTIVE_r1_Reorient(Robot_template* handle)
+{
+	/* Default exit sequence for state Reorient */
+	handle->stateConfVector[0] = Robot_template_last_state;
+	handle->stateConfVectorPosition = 0;
+	exact_main_region_ACTIVE_r1_Reorient(handle);
+}
+
+/* Default exit sequence for state Done */
+static void exseq_main_region_ACTIVE_r1_Done(Robot_template* handle)
+{
+	/* Default exit sequence for state Done */
+	handle->stateConfVector[0] = Robot_template_last_state;
+	handle->stateConfVectorPosition = 0;
+}
+
 /* Default exit sequence for state OFF */
 static void exseq_main_region_OFF(Robot_template* handle)
 {
@@ -359,6 +551,21 @@ static void exseq_main_region(Robot_template* handle)
 		case Robot_template_main_region_ACTIVE_r1_Turn :
 		{
 			exseq_main_region_ACTIVE_r1_Turn(handle);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Reverse :
+		{
+			exseq_main_region_ACTIVE_r1_Reverse(handle);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Reorient :
+		{
+			exseq_main_region_ACTIVE_r1_Reorient(handle);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Done :
+		{
+			exseq_main_region_ACTIVE_r1_Done(handle);
 			break;
 		}
 		case Robot_template_main_region_OFF :
@@ -387,6 +594,21 @@ static void exseq_main_region_ACTIVE_r1(Robot_template* handle)
 			exseq_main_region_ACTIVE_r1_Turn(handle);
 			break;
 		}
+		case Robot_template_main_region_ACTIVE_r1_Reverse :
+		{
+			exseq_main_region_ACTIVE_r1_Reverse(handle);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Reorient :
+		{
+			exseq_main_region_ACTIVE_r1_Reorient(handle);
+			break;
+		}
+		case Robot_template_main_region_ACTIVE_r1_Done :
+		{
+			exseq_main_region_ACTIVE_r1_Done(handle);
+			break;
+		}
 		default: break;
 	}
 }
@@ -395,7 +617,7 @@ static void exseq_main_region_ACTIVE_r1(Robot_template* handle)
 static void react_main_region_ACTIVE_r1__entry_Default(Robot_template* handle)
 {
 	/* Default react sequence for initial entry  */
-	enseq_main_region_ACTIVE_r1_Drive_default(handle);
+	enseq_main_region_ACTIVE_r1_Reorient_default(handle);
 }
 
 /* Default react sequence for initial entry  */
@@ -431,6 +653,10 @@ static sc_boolean main_region_ACTIVE_react(Robot_template* handle, const sc_bool
 	{ 
 		handle->iface.pushed = is_button_press();
 		print_state(handle->iface.curr_state);
+		handle->iface.psi = read_tilt_psi();
+		handle->iface.theta = read_tilt_theta();
+		handle->iface.cliff_l = (is_center_cliff() == bool_true) || (is_left_cliff() == bool_true);
+		handle->iface.cliff_r = is_right_cliff();
 	} 
 	return did_transition;
 }
@@ -442,13 +668,40 @@ static sc_boolean main_region_ACTIVE_r1_Drive_react(Robot_template* handle, cons
 	{ 
 		if ((main_region_ACTIVE_react(handle, try_transition)) == (bool_false))
 		{ 
-			if ((handle->iface.distance) > (0.5))
+			if (handle->iface.cliff_l == bool_true)
 			{ 
 				exseq_main_region_ACTIVE_r1_Drive(handle);
-				enseq_main_region_ACTIVE_r1_Turn_default(handle);
+				handle->iface.direction = -1;
+				handle->iface.cliff_l = bool_false;
+				enseq_main_region_ACTIVE_r1_Reverse_default(handle);
 			}  else
 			{
-				did_transition = bool_false;
+				if ((((get_abs(handle->iface.psi)) < (0.01)) && ((get_abs(handle->iface.theta)) < (0.01))) && (handle->iface.uphill == bool_true))
+				{ 
+					exseq_main_region_ACTIVE_r1_Drive(handle);
+					handle->iface.angle_d = 180;
+					handle->iface.uphill = bool_false;
+					enseq_main_region_ACTIVE_r1_Turn_default(handle);
+				}  else
+				{
+					if (((((get_abs(handle->iface.psi)) < (0.01)) && ((get_abs(handle->iface.theta)) < (0.01))) && (handle->iface.uphill == bool_false)) && ((handle->iface.distance) > (0.5)))
+					{ 
+						exseq_main_region_ACTIVE_r1_Drive(handle);
+						enseq_main_region_ACTIVE_r1_Done_default(handle);
+					}  else
+					{
+						if (handle->iface.cliff_r == bool_true)
+						{ 
+							exseq_main_region_ACTIVE_r1_Drive(handle);
+							handle->iface.direction = 1;
+							handle->iface.cliff_r = bool_false;
+							enseq_main_region_ACTIVE_r1_Reverse_default(handle);
+						}  else
+						{
+							did_transition = bool_false;
+						}
+					}
+				}
 			}
 		} 
 	} 
@@ -469,7 +722,7 @@ static sc_boolean main_region_ACTIVE_r1_Turn_react(Robot_template* handle, const
 	{ 
 		if ((main_region_ACTIVE_react(handle, try_transition)) == (bool_false))
 		{ 
-			if ((handle->iface.angle) > (90))
+			if ((get_abs(handle->iface.angle)) > (handle->iface.angle_d))
 			{ 
 				exseq_main_region_ACTIVE_r1_Turn(handle);
 				enseq_main_region_ACTIVE_r1_Drive_default(handle);
@@ -481,9 +734,80 @@ static sc_boolean main_region_ACTIVE_r1_Turn_react(Robot_template* handle, const
 	} 
 	if ((did_transition) == (bool_false))
 	{ 
-		drive_kobuki((-1 * handle->iface.left_speed), handle->iface.right_speed);
+		drive_kobuki(((handle->iface.direction * -1) * handle->iface.left_speed), (handle->iface.direction * handle->iface.right_speed));
 		handle->iface.angle = read_gyro();
 		print_angle(handle->iface.angle);
+	} 
+	return did_transition;
+}
+
+static sc_boolean main_region_ACTIVE_r1_Reverse_react(Robot_template* handle, const sc_boolean try_transition) {
+	/* The reactions of state Reverse. */
+	sc_boolean did_transition = try_transition;
+	if (try_transition == bool_true)
+	{ 
+		if ((main_region_ACTIVE_react(handle, try_transition)) == (bool_false))
+		{ 
+			if ((handle->iface.distance) > (0.1))
+			{ 
+				exseq_main_region_ACTIVE_r1_Reverse(handle);
+				handle->iface.angle_d = 20;
+				enseq_main_region_ACTIVE_r1_Turn_default(handle);
+			}  else
+			{
+				did_transition = bool_false;
+			}
+		} 
+	} 
+	if ((did_transition) == (bool_false))
+	{ 
+		drive_kobuki((-1 * handle->iface.left_speed), (-1 * handle->iface.right_speed));
+		handle->iface.distance = update_dist(handle->iface.distance, handle->iface.prev_encoder, bool_false);
+		handle->iface.prev_encoder = read_encoder();
+		print_dist(handle->iface.distance);
+	} 
+	return did_transition;
+}
+
+static sc_boolean main_region_ACTIVE_r1_Reorient_react(Robot_template* handle, const sc_boolean try_transition) {
+	/* The reactions of state Reorient. */
+	sc_boolean did_transition = try_transition;
+	if (try_transition == bool_true)
+	{ 
+		if ((main_region_ACTIVE_react(handle, try_transition)) == (bool_false))
+		{ 
+			if ((((get_abs(handle->iface.psi)) < (0.03)) && ((handle->iface.theta) < (0))) && ((get_abs(handle->iface.theta)) > (0.15)))
+			{ 
+				exseq_main_region_ACTIVE_r1_Reorient(handle);
+				enseq_main_region_ACTIVE_r1_Drive_default(handle);
+			}  else
+			{
+				did_transition = bool_false;
+			}
+		} 
+	} 
+	if ((did_transition) == (bool_false))
+	{ 
+		drive_kobuki((-1 * handle->iface.left_speed), handle->iface.right_speed);
+		handle->iface.angle = read_gyro();
+		print_angle(handle->iface.psi);
+	} 
+	return did_transition;
+}
+
+static sc_boolean main_region_ACTIVE_r1_Done_react(Robot_template* handle, const sc_boolean try_transition) {
+	/* The reactions of state Done. */
+	sc_boolean did_transition = try_transition;
+	if (try_transition == bool_true)
+	{ 
+		if ((main_region_ACTIVE_react(handle, try_transition)) == (bool_false))
+		{ 
+			did_transition = bool_false;
+		} 
+	} 
+	if ((did_transition) == (bool_false))
+	{ 
+		stop_kobuki();
 	} 
 	return did_transition;
 }
@@ -508,7 +832,10 @@ static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean
 	if ((did_transition) == (bool_false))
 	{ 
 		stop_kobuki();
+		handle->iface.psi = read_tilt_psi();
+		handle->iface.theta = read_tilt_theta();
 		handle->iface.pushed = is_button_press();
+		print_angle(handle->iface.theta);
 		print_state(OFF);
 	} 
 	return did_transition;
