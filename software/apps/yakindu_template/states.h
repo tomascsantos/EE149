@@ -17,6 +17,7 @@ typedef enum {
 	RIGHT,
 	LEFT,
 	REORIENT,
+	FUYCKYAH,
 } states;
 
 typedef enum {
