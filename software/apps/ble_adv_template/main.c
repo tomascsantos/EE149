@@ -26,18 +26,21 @@ NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
-        .device_id         = 0x0000,  // TODO: replace with your lab bench number
+        .device_id         = 0x0006,  // TODO: replace with your lab bench number
         .adv_name          = "EE149", // Note that this name is not displayed to save room in the advertisement for data.
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
         .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS),
 };
 
+bool has_been_updated = false;
+
 void light_timer_callback() {
     printf("Light timer fired!\n");
     // TODO: implement this function!
     // Use Simple BLE function to read light sensor and put data in
     // advertisement, but be careful about doing it in the callback itself!
+    has_been_updated = true;
 }
 
 /*******************************************************************************
@@ -80,16 +83,35 @@ int main(void) {
   simple_ble_app = simple_ble_init(&ble_config);
 
   // TODO replace this with advertisement sending light data
-  simple_ble_adv_only_name();
+  //simple_ble_adv_only_name();
+
+  
+
 
   // Set a timer to read the light sensor and update advertisement data every second.
   app_timer_init();
   app_timer_create(&adv_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) light_timer_callback);
-  app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); // 1000 milliseconds
+  app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); // 1000 millisecondss
 
   while(1) {
     // Sleep while SoftDevice handles BLE
     power_manage();
+
+	// measured_light = 6.14;
+	
+    if (has_been_updated) {
+    	float measured_light = max44009_read_lux();
+    	printf("hi\n");
+    	uint8_t buf[24]; 
+		memcpy(buf, &measured_light, sizeof(measured_light)); 
+
+		size_t len = sizeof(buf);
+		// buf[3] = "h";
+		simple_ble_adv_manuf_data(buf,len);
+    	has_been_updated = false;
+    } else {
+    	printf("bye\n");
+    }
   }
 }
 

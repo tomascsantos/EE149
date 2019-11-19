@@ -14,11 +14,17 @@
 #include <math.h>
 #include "states.h"
 
+uint16_t get_speed(float orig_speed, int32_t direction_fix, float rate);
+extern uint16_t to_int(float var);
+extern float to_float(uint16_t var);
+extern void stall(void);
+extern void clear_line(int line_num);
 extern void print_state(states current_state);
 extern void print_turn(turns current_turn);
 extern void print_dist(float dist);
 extern void print_angle(float angle);
 
+extern bool is_cliff();
 extern bool is_left_cliff();
 extern bool is_center_cliff();
 extern bool is_right_cliff();
@@ -41,5 +47,6 @@ float read_tilt_theta(void);
 float read_tilt_psi(void);
 
 extern float get_abs(float var);
+extern int32_t get_direction_fix(bool is_clockwise);
 
 #endif /* HELPER_FUNCS_H_ */

@@ -2,9 +2,9 @@
 import struct
 import time
 import keyboard
+import argparse
 from getpass import getpass
 from bluepy.btle import Peripheral, DefaultDelegate
-import argparse
 
 parser = argparse.ArgumentParser(description='Print advertisement data from a BLE device')
 parser.add_argument('addr', metavar='A', type=str, help='Address of the form XX:XX:XX:XX:XX:XX')
@@ -14,12 +14,7 @@ if len(addr) != 17:
     raise ValueError("Invalid address supplied")
 
 SERVICE_UUID = "4607eda0-f65e-4d59-a9ff-84420d87a4ca"
-CHAR_UUIDS = None # TODO: add your characteristics
-FORWARD_UUID = "4607eda1-f65e-4d59-a9ff-84420d87a4ca"
-BACK_UUID = "4607eda2-f65e-4d59-a9ff-84420d87a4ca"
-LEFT_UUID = "4607eda3-f65e-4d59-a9ff-84420d87a4ca"
-RIGHT_UUID = "4607eda4-f65e-4d59-a9ff-84420d87a4ca"
-STOP_UUID = "4607eda5-f65e-4d59-a9ff-84420d87a4ca"
+CHAR_UUIDS = {"up": "4607108a-f65e-4d59-a9ff-84420d87a4ca", "down": "4607108b-f65e-4d59-a9ff-84420d87a4ca", "left": "4607108c-f65e-4d59-a9ff-84420d87a4ca", "right": "4607108d-f65e-4d59-a9ff-84420d87a4ca"} # TODO: add your characteristics
 
 class RobotController():
 
@@ -31,15 +26,8 @@ class RobotController():
         # keep state for keypresses
         self.pressed = {"up": False, "down": False, "right": False, "left": False}
         # TODO get service from robot
-        # TODO get characteristic handles from service/robot
-        # TODO enable notifications if using notifications
         self.sv = self.robot.getServiceByUUID(SERVICE_UUID)
-
-        self.forward = self.sv.getCharacteristics(FORWARD_UUID)[0]
-        self.back = self.sv.getCharacteristics(BACK_UUID)[0]
-        self.left = self.sv.getCharacteristics(LEFT_UUID)[0]
-        self.right = self.sv.getCharacteristics(RIGHT_UUID)[0]
-        self.stop = self.sv.getCharacteristics(STOP_UUID)[0]
+        # TODO get characteristic handles from service/robot
 
         keyboard.hook(self.on_key_event)
 
@@ -55,19 +43,15 @@ class RobotController():
             # set state of key to pressed
             self.pressed[event.name] = True
             # TODO write to characteristic to change direction
-            if event.name == "up":
-                self.forward.write(bytes(True))
-            elif event.name == "down":
-                self.back.write(bytes(True))
-            elif event.name == "left":
-                self.left.write(bytes(True))
-            elif event.name == "right":
-                self.right.write(bytes(True))
+            ch = self.sv.getCharacteristics(CHAR_UUIDS[event.name])[0]
+            ch.write(bytes([True]))
         else:
             # set state of key to released
             self.pressed[event.name] = False
             # TODO write to characteristic to stop moving in this direction
-            self.stop.write(bytes(True))
+            ch = self.sv.getCharacteristics(CHAR_UUIDS[event.name])[0]
+            ch.write(bytes([False]))
+
     def __enter__(self):
         return self
     def __exit__(self, exc_type, exc_value, traceback):

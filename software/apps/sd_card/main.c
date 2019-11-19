@@ -46,12 +46,13 @@ int main(void) {
   nrf_gpio_pin_set(BUCKLER_SD_CS);
 
   // Initialize SD card
+  // simple_logger_power_on();
   const char filename[] = "testfile.log";
-  const char permissions[] = "a"; // w = write, a = append
+  const char permissions[] = "w"; // w = write, a = append
 
   // Start file
-  simple_logger_init(filename, permissions);
-
+  uint8_t error = simple_logger_init(filename, permissions);
+  printf("Error code: %d\n", error);
   // If no header, add it
   simple_logger_log_header("HEADER for file \'%s\', written on %s \n", filename, "DATE");
   printf("Wrote header to SD card\n");

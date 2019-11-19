@@ -17,10 +17,16 @@ typedef enum {
 	RIGHT,
 	LEFT,
 	REORIENT,
+  TURNING,
+  DRIVE_FORWARD,
+  CALIBRATE_TILT,
+  TURN_AROUND,
+  AVOID_CLIFF,
+  SLOW_DOWN,
 } states;
 
 typedef enum {
-    LEFT_TURN,
+  LEFT_TURN,
 	RIGHT_TURN,
 	STRAIGHT,
 } turns;
