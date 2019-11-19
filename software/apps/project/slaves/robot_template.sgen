@@ -1,0 +1,11 @@
+GeneratorModel for yakindu::c {
+
+	statechart robot_template {
+
+		feature Outlet {
+			targetProject = "slaves"
+			targetFolder = "src-gen"
+			libraryTargetFolder = "src"
+		}
+	}
+}

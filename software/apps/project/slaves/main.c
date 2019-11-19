@@ -51,7 +51,8 @@ static simple_ble_config_t ble_config = {
 uint8_t* buf[6] = {69, 50, 10, 12, 32, 18};
 size_t len = 6;
 void relative_distances(){
-  simple_ble_adv_manuf_data(uint8_t* buf, size_t len);
+	printf("we done it");
+  simple_ble_adv_manuf_data(buf, len);
 }
 
 // global variables
@@ -104,6 +105,7 @@ int main(void) {
 
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
+  simple_ble_adv_only_name();
 
   // initialize Kobuki
   kobukiInit();
