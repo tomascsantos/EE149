@@ -42,18 +42,62 @@ static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
         .device_id         = 0x0006,  // TODO: replace with your lab bench number
-        .adv_name          = "master", // Note that this name is not displayed to save room in the advertisement for data.
+        .adv_name          = "slave", // Note that this name is not displayed to save room in the advertisement for data.
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
         .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS),
 };
+simple_ble_app_t* simple_ble_app; //from listener
 
-uint8_t* buf[6] = {69, 50, 10, 12, 32, 18};
-size_t len = 6;
-void relative_distances(){
-	printf("we done it");
-  simple_ble_adv_manuf_data(buf, len);
-}
+//void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
+//  //p_ble_evt is a struct of type ble_evt_t
+//  //this stuct has a field called evt which may be of type ble_gap_evt_t
+//  //evt is a struct with field params which may be of type ble_gap_evt_adv_report_t
+//  //params is a struct with fields containing advertisement data
+//  ble_gap_evt_t event = p_ble_evt->evt.gap_evt;
+//  ble_gap_evt_adv_report_t report = event.params.adv_report;
+//  // Extract address and compare
+//  uint8_t* addr = report.peer_addr.addr;
+//  uint8_t master_addr[] = {0x05, 0x00, 0x49, 0xE5, 0x98, 0xC0};
+//  // Since memcmp is bad, check each byte in order
+//  bool equal = true;
+//  for (int j = 0; j < 6; j++){
+//    if (addr[j] != gsi_addr[j]) {
+//      equal = false;
+//    }
+//  }
+//  if (equal) {
+//    // Parse the data field for the hidden message
+//    uint8_t* data = report.data.p_data;
+//    uint16_t dlen = report.data.len;
+//    uint8_t i = 0;
+//    uint8_t len = 0;
+//    uint8_t type = 0;
+//    uint8_t manufact_type = 0xFF;
+//    // Loop over bytes
+//    while (i < dlen) {
+//      // Get length
+//      len = data[i];
+//      // Compare type to match 0xFF
+//      type = data[i+1];
+//      // If matches, get data
+//      if (type == manufact_type) {
+//        // Print data
+//        // Skip first two bytes of payload
+//        // len-3 to ignore type and company id
+//        // i+4 to start at first relevant data byte (skipping company id)
+//        printf("Length: %u\n", len);
+//        printf("Type: %x\n", type);
+//        printf("Data: %s\n", data+i+4);
+//        printf("\n");
+//        break;
+//      }
+//      // If no match, skip forward length bytes
+//      i = i + len + 1;
+//    }
+//  }
+//}
+
 
 // global variables
 KobukiSensors_t sensors = {0};
@@ -119,10 +163,15 @@ int main(void) {
 
 
   // Set a timer to read the light sensor and update advertisement data every second.
-  app_timer_init();
-  app_timer_create(&adv_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) relative_distances);
-  app_timer_start(adv_timer, APP_TIMER_TICKS(100), NULL); // 100 milliseconds
+  //app_timer_init();
+  //app_timer_create(&adv_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) relative_distances);
+  //app_timer_start(adv_timer, APP_TIMER_TICKS(100), NULL); // 100 milliseconds
+  
+  //LISTENER
+  simple_ble_app = simple_ble_init(&ble_config);
+  advertising_stop();
 
+  scanning_start();
   // intialize statechart variables
   // if needed
 
