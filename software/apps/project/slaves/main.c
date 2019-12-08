@@ -60,13 +60,16 @@ static simple_ble_service_t led_service = {{
 static simple_ble_char_t display_state_char = {.uuid16 = 0x1090};
 static char display_buffer[16];
 
+float my_dist;
+
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
 // This is code to write messages to LCD Display via bluetooth
   if (simple_ble_is_char_event(p_ble_evt, &display_state_char)) {
       printf("Got write to Display characteristic!\n");
       display_write(display_buffer, DISPLAY_LINE_0);
   }
-  for(int i = 0; i < 16; i++) {
+  my_dist = (float) atof(display_buffer);
+  for(int i = 0; i < 16; i++) {  
     display_buffer[i] = '\0';
   }
 }

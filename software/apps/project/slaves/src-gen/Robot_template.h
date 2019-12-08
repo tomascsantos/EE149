@@ -16,7 +16,7 @@ extern "C" {
 
 /*! Define number of states in the state enum */
 
-#define ROBOT_TEMPLATE_STATE_COUNT 5
+#define ROBOT_TEMPLATE_STATE_COUNT 6
 
 /*! Define dimension of the state configuration vector for orthogonal states. */
 #define ROBOT_TEMPLATE_MAX_ORTHOGONAL_STATES 1
@@ -28,6 +28,7 @@ extern "C" {
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_TURN 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_REVERSE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF 0
+#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_MOVE 0
 
 /*! Enumeration of all states */ 
 typedef enum
@@ -37,7 +38,8 @@ typedef enum
 	Robot_template_main_region_ACTIVE_r1_Drive,
 	Robot_template_main_region_ACTIVE_r1_Turn,
 	Robot_template_main_region_ACTIVE_r1_Reverse,
-	Robot_template_main_region_OFF
+	Robot_template_main_region_OFF,
+	Robot_template_main_region_move
 } Robot_templateStates;
 
 

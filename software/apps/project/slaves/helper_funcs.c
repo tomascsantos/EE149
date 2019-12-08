@@ -33,8 +33,11 @@
 #include "mpu9250.h"
 
 extern KobukiSensors_t sensors;
+extern float my_dist;
 
-
+float get_distance() {
+  return my_dist;
+}
 
 uint16_t read_encoder(){
   return sensors.leftWheelEncoder;

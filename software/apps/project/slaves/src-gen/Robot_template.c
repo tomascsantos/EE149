@@ -12,12 +12,14 @@ static void enact_main_region_ACTIVE_r1_Drive(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Turn(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Reverse(Robot_template* handle);
 static void enact_main_region_OFF(Robot_template* handle);
+static void enact_main_region_move(Robot_template* handle);
 static void exact_main_region_ACTIVE_r1_Turn(Robot_template* handle);
 static void enseq_main_region_ACTIVE_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Drive_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Turn_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Reverse_default(Robot_template* handle);
 static void enseq_main_region_OFF_default(Robot_template* handle);
+static void enseq_main_region_move_default(Robot_template* handle);
 static void enseq_main_region_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_default(Robot_template* handle);
 static void exseq_main_region_ACTIVE(Robot_template* handle);
@@ -25,6 +27,7 @@ static void exseq_main_region_ACTIVE_r1_Drive(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Turn(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Reverse(Robot_template* handle);
 static void exseq_main_region_OFF(Robot_template* handle);
+static void exseq_main_region_move(Robot_template* handle);
 static void exseq_main_region(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1(Robot_template* handle);
 static void react_main_region_ACTIVE_r1__entry_Default(Robot_template* handle);
@@ -35,6 +38,7 @@ static sc_boolean main_region_ACTIVE_r1_Drive_react(Robot_template* handle, cons
 static sc_boolean main_region_ACTIVE_r1_Turn_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_ACTIVE_r1_Reverse_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean try_transition);
+static sc_boolean main_region_move_react(Robot_template* handle, const sc_boolean try_transition);
 static void clearInEvents(Robot_template* handle);
 static void clearOutEvents(Robot_template* handle);
 
@@ -110,6 +114,11 @@ void robot_template_runCycle(Robot_template* handle)
 			main_region_OFF_react(handle, bool_true);
 			break;
 		}
+		case Robot_template_main_region_move:
+		{
+			main_region_move_react(handle, bool_true);
+			break;
+		}
 		default:
 			break;
 		}
@@ -170,6 +179,10 @@ sc_boolean robot_template_isStateActive(const Robot_template* handle, Robot_temp
 			break;
 		case Robot_template_main_region_OFF :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF] == Robot_template_main_region_OFF
+			);
+			break;
+		case Robot_template_main_region_move :
+			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_MOVE] == Robot_template_main_region_move
 			);
 			break;
 		default:
@@ -367,6 +380,13 @@ static void enact_main_region_OFF(Robot_template* handle)
 	handle->iface.pushed = bool_false;
 }
 
+/* Entry action for state 'move'. */
+static void enact_main_region_move(Robot_template* handle)
+{
+	/* Entry action for state 'move'. */
+	handle->iface.distance = get_distance();
+}
+
 /* Exit action for state 'Turn'. */
 static void exact_main_region_ACTIVE_r1_Turn(Robot_template* handle)
 {
@@ -416,6 +436,15 @@ static void enseq_main_region_OFF_default(Robot_template* handle)
 	/* 'default' enter sequence for state OFF */
 	enact_main_region_OFF(handle);
 	handle->stateConfVector[0] = Robot_template_main_region_OFF;
+	handle->stateConfVectorPosition = 0;
+}
+
+/* 'default' enter sequence for state move */
+static void enseq_main_region_move_default(Robot_template* handle)
+{
+	/* 'default' enter sequence for state move */
+	enact_main_region_move(handle);
+	handle->stateConfVector[0] = Robot_template_main_region_move;
 	handle->stateConfVectorPosition = 0;
 }
 
@@ -473,6 +502,14 @@ static void exseq_main_region_OFF(Robot_template* handle)
 	handle->stateConfVectorPosition = 0;
 }
 
+/* Default exit sequence for state move */
+static void exseq_main_region_move(Robot_template* handle)
+{
+	/* Default exit sequence for state move */
+	handle->stateConfVector[0] = Robot_template_last_state;
+	handle->stateConfVectorPosition = 0;
+}
+
 /* Default exit sequence for region main region */
 static void exseq_main_region(Robot_template* handle)
 {
@@ -498,6 +535,11 @@ static void exseq_main_region(Robot_template* handle)
 		case Robot_template_main_region_OFF :
 		{
 			exseq_main_region_OFF(handle);
+			break;
+		}
+		case Robot_template_main_region_move :
+		{
+			exseq_main_region_move(handle);
 			break;
 		}
 		default: break;
@@ -659,10 +701,17 @@ static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean
 			if (handle->iface.pushed == bool_true)
 			{ 
 				exseq_main_region_OFF(handle);
-				enseq_main_region_ACTIVE_default(handle);
+				enseq_main_region_move_default(handle);
 			}  else
 			{
-				did_transition = bool_false;
+				if ((handle->iface.left_speed) > (300))
+				{ 
+					exseq_main_region_OFF(handle);
+					enseq_main_region_ACTIVE_default(handle);
+				}  else
+				{
+					did_transition = bool_false;
+				}
 			}
 		} 
 	} 
@@ -671,6 +720,34 @@ static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean
 		stop_kobuki();
 		handle->iface.pushed = is_button_press();
 		print_state(OFF);
+	} 
+	return did_transition;
+}
+
+static sc_boolean main_region_move_react(Robot_template* handle, const sc_boolean try_transition) {
+	/* The reactions of state move. */
+	sc_boolean did_transition = try_transition;
+	if (try_transition == bool_true)
+	{ 
+		if ((react(handle)) == (bool_false))
+		{ 
+			if ((handle->iface.distance) <= (0))
+			{ 
+				exseq_main_region_move(handle);
+				enseq_main_region_OFF_default(handle);
+			}  else
+			{
+				did_transition = bool_false;
+			}
+		} 
+	} 
+	if ((did_transition) == (bool_false))
+	{ 
+		drive_kobuki(100, 100);
+		handle->iface.prev_encoder = read_encoder();
+		handle->iface.distance = update_dist(handle->iface.distance, handle->iface.prev_encoder, bool_true);
+		print_dist(handle->iface.distance);
+		print_state(DRIVING);
 	} 
 	return did_transition;
 }
