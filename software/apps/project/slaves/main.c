@@ -49,6 +49,27 @@ static simple_ble_config_t ble_config = {
 };
 simple_ble_app_t* simple_ble_app; //from listener
 
+
+//_________________NEW LISTNENER___________________
+//NOTE: this is re-used for diplay_write characteristic
+static simple_ble_service_t led_service = {{
+    .uuid128 = {0x70,0x6C,0x98,0x41,0xCE,0x43,0x14,0xA9,
+                0xB5,0x4D,0x22,0x2B,0x89,0x10,0xE6,0x32}
+}};
+
+static simple_ble_char_t display_state_char = {.uuid16 = 0x1090};
+static char display_buffer[16];
+
+void ble_evt_write(ble_evt_t const* p_ble_evt) {
+// This is code to write messages to LCD Display via bluetooth
+  if (simple_ble_is_char_event(p_ble_evt, &display_state_char)) {
+      printf("Got write to Display characteristic!\n");
+      display_write(display_buffer, DISPLAY_LINE_0);
+  }
+  for(int i = 0; i < 16; i++) {
+    display_buffer[i] = '\0';
+  }
+}
 //void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
 //  //p_ble_evt is a struct of type ble_evt_t
 //  //this stuct has a field called evt which may be of type ble_gap_evt_t
@@ -102,7 +123,7 @@ simple_ble_app_t* simple_ble_app; //from listener
 // global variables
 KobukiSensors_t sensors = {0};
 // Main application state
-simple_ble_app_t* simple_ble_app;
+// simple_ble_app_t* simple_ble_app; #redundant, see above
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -134,7 +155,7 @@ int main(void) {
   error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
   APP_ERROR_CHECK(error_code);
   display_init(&spi_instance);
-  display_write("Hello, Human!", DISPLAY_LINE_0);
+  display_write("Hello, Tomas!", DISPLAY_LINE_0);
   printf("Display initialized!\n");
 
   // initialize i2c master (two wire interface)
@@ -147,8 +168,28 @@ int main(void) {
   mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
 
+  //_____NEW - for listener from listener
+  // const max44009_config_t config = {
+  //   .continuous = 0,
+  //   .manual = 0,
+  //   .cdr = 0,
+  //   .int_time = 3,
+  // };
+  // max44009_init(&twi_mngr_instance, BUCKLER_LIGHT_INTERRUPT);
+  // max44009_config(config);
+  // printf("MAX44009 initialized\n");
+
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
+  simple_ble_add_service(&led_service);
+
+  // for LCD
+  simple_ble_add_characteristic(1, 1, 0, 1,
+      sizeof(char)*16, (uint8_t*) display_buffer,
+      &led_service, &display_state_char);
+
+
+  //Start advertising
   simple_ble_adv_only_name();
 
   // initialize Kobuki
@@ -168,8 +209,6 @@ int main(void) {
   //app_timer_start(adv_timer, APP_TIMER_TICKS(100), NULL); // 100 milliseconds
   
   //LISTENER
-  simple_ble_app = simple_ble_init(&ble_config);
-  advertising_stop();
 
   scanning_start();
   // intialize statechart variables
