@@ -25,7 +25,7 @@ NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
-        .device_id         = 0x0002, // TODO: replace with your lab bench number
+        .device_id         = 0x0006, // TODO: replace with your lab bench number
         .adv_name          = "Slave Kobuki", // used in advertisements if there is room
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
@@ -87,6 +87,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
     
   // This is Toggle LED0 Code
 
+/*
    if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
      printf("Got write to LED characteristic!\n");
      if (led_state) {
@@ -98,17 +99,18 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
      }
    }
 }
+*/
 
 
 // This is code to write messages to LCD Display via bluetooth
-//  if (simple_ble_is_char_event(p_ble_evt, &display_state_char)) {
-//      printf("Got write to Display characteristic!\n");
-//      display_write(display_buffer, DISPLAY_LINE_0);
-//  }
-//  for(int i = 0; i < 16; i++) {
-//    display_buffer[i] = '\0';
-//  }
-//}
+  if (simple_ble_is_char_event(p_ble_evt, &display_state_char)) {
+      printf("Got write to Display characteristic!\n");
+      display_write(display_buffer, DISPLAY_LINE_0);
+  }
+  for(int i = 0; i < 16; i++) {
+    display_buffer[i] = '\0';
+  }
+}
 
 int main(void) {
 
@@ -162,12 +164,13 @@ int main(void) {
   simple_ble_add_service(&led_service);
 
 // for LED
+/*
   simple_ble_add_characteristic(1, 1, 0, 0,
   sizeof(led_state), (uint8_t*)&led_state,
   &led_service, &led_state_char);
+*/
 
   // for LCD
-/*
   simple_ble_add_characteristic(1, 1, 0, 1,
       sizeof(char)*16, (uint8_t*) display_buffer,
       &led_service, &display_state_char);
@@ -178,7 +181,7 @@ int main(void) {
   simple_ble_add_characteristic(1, 0, 1, 0,
       sizeof(float), (uint8_t*)&lux,
       &light_service, &light_state_char);
-*/
+
 
 
   // Start Advertising
