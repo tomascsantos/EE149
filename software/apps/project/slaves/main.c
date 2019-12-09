@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "app_error.h"
 #include "app_timer.h"
@@ -60,7 +61,12 @@ static simple_ble_service_t led_service = {{
 static simple_ble_char_t display_state_char = {.uuid16 = 0x1090};
 static char display_buffer[16];
 
-float my_dist;
+int robot_selector;
+float curr_x;
+float curr_y;
+float desired_x;
+float desired_y;
+float msg;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
 // This is code to write messages to LCD Display via bluetooth
@@ -68,7 +74,38 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       printf("Got write to Display characteristic!\n");
       display_write(display_buffer, DISPLAY_LINE_0);
   }
-  my_dist = (float) atof(display_buffer);
+  msg = (float) atof(display_buffer);
+  int count = 0;
+  char rs[4];
+  char cx[4];
+  char cy[4];
+  char dx[4];
+  char dy[4];
+  for (int i =0; i < 16; i++) {
+  	if (i == ':') {
+  	  count++;
+  	}
+  	if (count == 0) {
+  	  strcat(rs, display_buffer[i]);
+  	}
+  	if (count == 1) {
+  	  strcat(cx, display_buffer[i]);
+  	}
+  	if (count == 2) {
+  	  strcat(cy, display_buffer[i]);
+  	}
+  	if (count == 3) {
+  	  strcat(dx, display_buffer[i]);
+  	}
+  	if (count == 4) {
+  	  strcat(dy, display_buffer[i]);
+  	}
+  }
+  robot_selector = (int) atof(rs);
+  curr_x = (float) atof(cx);
+  curr_y = (float) atof(cy);
+  desired_x = (float) atof(dx);
+  desired_y = (float) atof(dy);
   for(int i = 0; i < 16; i++) {  
     display_buffer[i] = '\0';
   }
@@ -198,7 +235,6 @@ int main(void) {
   // initialize Kobuki
   kobukiInit();
   printf("Kobuki initialized!\n");
-
   // initialize yakindu state machine
   // start statechart
   Robot_template sc_handle;

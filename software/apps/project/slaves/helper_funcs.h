@@ -29,7 +29,13 @@ extern bool is_button_press();
 
 extern uint16_t read_encoder();
 extern float update_dist(float dist, uint16_t prev_encoder, bool is_forward);
-extern float get_distance();
+extern int get_rs();
+extern float get_cx();
+extern float get_cy();
+extern float get_dx();
+extern float get_dy();
+extern float get_msg();
+
 
 extern void drive_kobuki(uint16_t left_wheel, uint16_t right_wheel);
 extern void stop_kobuki();

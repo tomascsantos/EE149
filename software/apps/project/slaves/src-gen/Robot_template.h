@@ -16,7 +16,7 @@ extern "C" {
 
 /*! Define number of states in the state enum */
 
-#define ROBOT_TEMPLATE_STATE_COUNT 6
+#define ROBOT_TEMPLATE_STATE_COUNT 4
 
 /*! Define dimension of the state configuration vector for orthogonal states. */
 #define ROBOT_TEMPLATE_MAX_ORTHOGONAL_STATES 1
@@ -25,10 +25,8 @@ extern "C" {
 /*! Define indices of states in the StateConfVector */
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_DRIVE 0
-#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_TURN 0
-#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_REVERSE 0
+#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_STOP 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF 0
-#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_MOVE 0
 
 /*! Enumeration of all states */ 
 typedef enum
@@ -36,10 +34,8 @@ typedef enum
 	Robot_template_last_state,
 	Robot_template_main_region_ACTIVE,
 	Robot_template_main_region_ACTIVE_r1_Drive,
-	Robot_template_main_region_ACTIVE_r1_Turn,
-	Robot_template_main_region_ACTIVE_r1_Reverse,
-	Robot_template_main_region_OFF,
-	Robot_template_main_region_move
+	Robot_template_main_region_ACTIVE_r1_Stop,
+	Robot_template_main_region_OFF
 } Robot_templateStates;
 
 
@@ -51,19 +47,17 @@ typedef struct
 {
 	sc_boolean pushed;
 	float distance;
+	float track;
 	float angle;
 	uint16_t prev_encoder;
 	states curr_state;
 	uint16_t right_speed;
 	uint16_t left_speed;
-	uint16_t x_dif;
-	uint16_t x_d;
-	uint16_t x_curr;
-	uint16_t y_dif;
-	uint16_t y_d;
-	uint16_t y_curr;
+	sc_boolean cliff_l;
+	sc_boolean cliff_r;
+	float psi;
+	float theta;
 	float angle_d;
-	float angle_curr;
 	sc_boolean uphill;
 	uint16_t direction;
 } Robot_templateIface;
@@ -106,6 +100,10 @@ extern void robot_templateIface_set_pushed(Robot_template* handle, sc_boolean va
 extern float robot_templateIface_get_distance(const Robot_template* handle);
 /*! Sets the value of the variable 'distance' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_distance(Robot_template* handle, float value);
+/*! Gets the value of the variable 'track' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_track(const Robot_template* handle);
+/*! Sets the value of the variable 'track' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_track(Robot_template* handle, float value);
 /*! Gets the value of the variable 'angle' that is defined in the default interface scope. */ 
 extern float robot_templateIface_get_angle(const Robot_template* handle);
 /*! Sets the value of the variable 'angle' that is defined in the default interface scope. */ 
@@ -126,38 +124,26 @@ extern void robot_templateIface_set_right_speed(Robot_template* handle, uint16_t
 extern uint16_t robot_templateIface_get_left_speed(const Robot_template* handle);
 /*! Sets the value of the variable 'left_speed' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_left_speed(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'x_dif' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_x_dif(const Robot_template* handle);
-/*! Sets the value of the variable 'x_dif' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_x_dif(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'x_d' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_x_d(const Robot_template* handle);
-/*! Sets the value of the variable 'x_d' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_x_d(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'x_curr' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_x_curr(const Robot_template* handle);
-/*! Sets the value of the variable 'x_curr' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_x_curr(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'y_dif' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_y_dif(const Robot_template* handle);
-/*! Sets the value of the variable 'y_dif' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_y_dif(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'y_d' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_y_d(const Robot_template* handle);
-/*! Sets the value of the variable 'y_d' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_y_d(Robot_template* handle, uint16_t value);
-/*! Gets the value of the variable 'y_curr' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_y_curr(const Robot_template* handle);
-/*! Sets the value of the variable 'y_curr' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_y_curr(Robot_template* handle, uint16_t value);
+/*! Gets the value of the variable 'cliff_l' that is defined in the default interface scope. */ 
+extern sc_boolean robot_templateIface_get_cliff_l(const Robot_template* handle);
+/*! Sets the value of the variable 'cliff_l' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_cliff_l(Robot_template* handle, sc_boolean value);
+/*! Gets the value of the variable 'cliff_r' that is defined in the default interface scope. */ 
+extern sc_boolean robot_templateIface_get_cliff_r(const Robot_template* handle);
+/*! Sets the value of the variable 'cliff_r' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_cliff_r(Robot_template* handle, sc_boolean value);
+/*! Gets the value of the variable 'psi' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_psi(const Robot_template* handle);
+/*! Sets the value of the variable 'psi' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_psi(Robot_template* handle, float value);
+/*! Gets the value of the variable 'theta' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_theta(const Robot_template* handle);
+/*! Sets the value of the variable 'theta' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_theta(Robot_template* handle, float value);
 /*! Gets the value of the variable 'angle_d' that is defined in the default interface scope. */ 
 extern float robot_templateIface_get_angle_d(const Robot_template* handle);
 /*! Sets the value of the variable 'angle_d' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_angle_d(Robot_template* handle, float value);
-/*! Gets the value of the variable 'angle_curr' that is defined in the default interface scope. */ 
-extern float robot_templateIface_get_angle_curr(const Robot_template* handle);
-/*! Sets the value of the variable 'angle_curr' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_angle_curr(Robot_template* handle, float value);
 /*! Gets the value of the variable 'uphill' that is defined in the default interface scope. */ 
 extern sc_boolean robot_templateIface_get_uphill(const Robot_template* handle);
 /*! Sets the value of the variable 'uphill' that is defined in the default interface scope. */ 

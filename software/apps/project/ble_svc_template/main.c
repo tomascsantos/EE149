@@ -107,6 +107,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       printf("Got write to Display characteristic!\n");
       display_write(display_buffer, DISPLAY_LINE_0);
   }
+
   for(int i = 0; i < 16; i++) {
     display_buffer[i] = '\0';
   }
@@ -191,6 +192,8 @@ int main(void) {
   app_timer_init();
   app_timer_create(&light_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) light_timer_callback);
   app_timer_start(light_timer, APP_TIMER_TICKS(1000), NULL); // 1000 milliseconds
+
+
 
   while(1) {
 /*

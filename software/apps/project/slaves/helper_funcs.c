@@ -33,10 +33,30 @@
 #include "mpu9250.h"
 
 extern KobukiSensors_t sensors;
-extern float my_dist;
+extern float msg;
+extern int robot_selector;
+extern float curr_x;
+extern float curr_y;
+extern float desired_x;
+extern float desired_y;
 
-float get_distance() {
-  return my_dist;
+float get_msg(){
+  return msg;
+}
+int get_rs() {
+  return robot_selector;
+}
+float get_cx() {
+  return curr_x;
+}
+float get_cy() {
+  return curr_y;
+}
+float get_dx() {
+  return desired_x;
+}
+float get_dy() {
+  return desired_y;
 }
 
 uint16_t read_encoder(){
