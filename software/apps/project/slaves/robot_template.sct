@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:sgraph="http://www.yakindu.org/sct/sgraph/2.0.0">
-  <sgraph:Statechart xmi:id="_MvNJgMFBEeipM4DyHdzJFg" specification="@CycleBased(200)&#xA;import: &quot;states.h&quot;&#xA;import: &quot;helper_funcs.h&quot;&#xA;&#xA;interface:&#xA;// Define events and&#xA;// and variables here. &#xA;//Use CTRL + Space for content assist.&#xA;var pushed:bool=false&#xA;var distance:float=0.0f&#xA;var track:float=0.0f&#xA;var angle:float=0.0f&#xA;var prev_encoder:uint16_t=0&#xA;var curr_state:states=states.OFF&#xA;var right_speed:uint16_t=150&#xA;var left_speed:uint16_t=150&#xA;var cliff_l:bool=false&#xA;var cliff_r:bool=false&#xA;var psi:float=0&#xA;var theta:float=0&#xA;var angle_d:float=0&#xA;var uphill:bool=true&#xA;var direction:uint16_t = 1" name="robot_template" domainID="com.yakindu.domain.c">
+  <sgraph:Statechart xmi:id="_MvNJgMFBEeipM4DyHdzJFg" specification="@CycleBased(200)&#xA;import: &quot;states.h&quot;&#xA;import: &quot;helper_funcs.h&quot;&#xA;&#xA;interface:&#xA;// Define events and&#xA;// and variables here. &#xA;//Use CTRL + Space for content assist.&#xA;var pushed:bool=false&#xA;var distance:float=0.0f&#xA;var dist:float=0.0f&#xA;var cx:float=0.0f&#xA;var cy:float=0.0f&#xA;var dx:float=0.0f&#xA;var dy:float=0.0f&#xA;var angle:float=0.0f&#xA;var prev_encoder:uint16_t=0&#xA;var curr_state:states=states.OFF&#xA;var right_speed:uint16_t=150&#xA;var left_speed:uint16_t=150&#xA;var cliff_l:bool=false&#xA;var cliff_r:bool=false&#xA;var psi:float=0&#xA;var theta:float=0&#xA;var angle_d:float=0&#xA;var uphill:bool=true&#xA;var direction:uint16_t = 1" name="robot_template" domainID="com.yakindu.domain.c">
     <regions xmi:id="_MvRa88FBEeipM4DyHdzJFg" name="main region">
       <vertices xsi:type="sgraph:State" xmi:id="_bEa2AOhyEemQArtQ3KXIEg" specification="entry/&#xA;pushed=false&#xA;always/&#xA;pushed=is_button_press();&#xA;print_state(curr_state)&#xA;" name="ACTIVE" incomingTransitions="_nWvGwOhzEemQArtQ3KXIEg">
         <outgoingTransitions xmi:id="_Y2CoAOh0EemQArtQ3KXIEg" specification="[pushed]" target="_c0AkUOhyEemQArtQ3KXIEg"/>
         <regions xmi:id="_bEd5UOhyEemQArtQ3KXIEg" name="r1">
-          <vertices xsi:type="sgraph:State" xmi:id="_gJNlkOhyEemQArtQ3KXIEg" specification="entry/&#xA;curr_state = states.DRIVING;&#xA;cliff_l=false;&#xA;cliff_r=false&#xA;always/&#xA;drive_kobuki(left_speed,right_speed);&#xA;distance = update_dist(distance, prev_encoder, true);&#xA;prev_encoder = read_encoder();&#xA;print_state(curr_state)" name="Drive" incomingTransitions="_j7zUEBoPEeqgCI2q-MOxEg _X7K-UBoQEeqgCI2q-MOxEg">
-            <outgoingTransitions xmi:id="_T9Ms4BoQEeqgCI2q-MOxEg" specification="[distance >= track * 2]" target="_QBSQ8BoQEeqgCI2q-MOxEg"/>
+          <vertices xsi:type="sgraph:State" xmi:id="_gJNlkOhyEemQArtQ3KXIEg" specification="entry/&#xA;curr_state = states.DRIVING;&#xA;cx = get_cx();&#xA;cy = get_cy();&#xA;dx = get_dx();&#xA;dy = get_dy();&#xA;psi = get_rs();&#xA;angle = get_rs();&#xA;distance = find_dist(cx,cy,dx,dy);&#xA;start_gyro()&#xA;always/&#xA;drive_kobuki(0,right_speed);&#xA;theta = get_abs(read_gyro());&#xA;print_angle(theta)&#xA;exit/&#xA;stop_gyro()&#xA;" name="Drive" incomingTransitions="_j7zUEBoPEeqgCI2q-MOxEg">
+            <outgoingTransitions xmi:id="_T9Ms4BoQEeqgCI2q-MOxEg" specification="[theta >= angle]" target="_QBSQ8BoQEeqgCI2q-MOxEg"/>
           </vertices>
           <vertices xsi:type="sgraph:Entry" xmi:id="_T_JKgOh0EemQArtQ3KXIEg">
             <outgoingTransitions xmi:id="_j7zUEBoPEeqgCI2q-MOxEg" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
-          <vertices xsi:type="sgraph:State" xmi:id="_QBSQ8BoQEeqgCI2q-MOxEg" specification="entry/&#xA;curr_state = states.FUYCKYAH;&#xA;cliff_l=false;&#xA;cliff_r=false&#xA;always/&#xA;drive_kobuki(0,0);&#xA;print_state(curr_state);&#xA;print_dist(distance)" name="Stop" incomingTransitions="_T9Ms4BoQEeqgCI2q-MOxEg">
-            <outgoingTransitions xmi:id="_X7K-UBoQEeqgCI2q-MOxEg" specification="[distance >= 0]" target="_gJNlkOhyEemQArtQ3KXIEg"/>
+          <vertices xsi:type="sgraph:State" xmi:id="_QBSQ8BoQEeqgCI2q-MOxEg" specification="entry/&#xA;curr_state = states.FUYCKYAH;&#xA;cliff_l=false;&#xA;cliff_r=false;&#xA;dist = 0&#xA;always/&#xA;drive_kobuki(left_speed, right_speed);&#xA;dist = update_dist(dist, prev_encoder, true);&#xA;prev_encoder = read_encoder();&#xA;print_dist(dist)" name="DD" incomingTransitions="_T9Ms4BoQEeqgCI2q-MOxEg">
+            <outgoingTransitions xmi:id="_X7K-UBoQEeqgCI2q-MOxEg" specification="[dist >= distance]" target="_rpfwwBrZEeqnP-coKq3LzQ"/>
           </vertices>
+          <vertices xsi:type="sgraph:State" xmi:id="_rpfwwBrZEeqnP-coKq3LzQ" specification="entry/&#xA;curr_state = states.LEFT&#xA;always/&#xA;drive_kobuki(0,0)" name="Stop" incomingTransitions="_X7K-UBoQEeqgCI2q-MOxEg"/>
         </regions>
       </vertices>
-      <vertices xsi:type="sgraph:State" xmi:id="_c0AkUOhyEemQArtQ3KXIEg" specification="entry/&#xA;pushed=false;&#xA;cliff_l=false;&#xA;cliff_r=false&#xA;always/&#xA;stop_kobuki();&#xA;psi = read_tilt_psi();&#xA;theta = read_tilt_theta();&#xA;distance = get_msg();&#xA;pushed=is_button_press();&#xA;print_state(states.OFF);&#xA;print_dist(distance)" name="OFF" incomingTransitions="_VwawUOhzEemQArtQ3KXIEg _Y2CoAOh0EemQArtQ3KXIEg">
+      <vertices xsi:type="sgraph:State" xmi:id="_c0AkUOhyEemQArtQ3KXIEg" specification="entry/&#xA;pushed=false;&#xA;cliff_l=false;&#xA;cliff_r=false&#xA;always/&#xA;stop_kobuki();&#xA;psi = read_tilt_psi();&#xA;theta = read_tilt_theta();&#xA;distance = get_dx();&#xA;pushed=is_button_press();&#xA;print_state(states.OFF);&#xA;print_dist(distance)" name="OFF" incomingTransitions="_VwawUOhzEemQArtQ3KXIEg _Y2CoAOh0EemQArtQ3KXIEg">
         <outgoingTransitions xmi:id="_nWvGwOhzEemQArtQ3KXIEg" specification="[pushed]" target="_bEa2AOhyEemQArtQ3KXIEg"/>
       </vertices>
       <vertices xsi:type="sgraph:Entry" xmi:id="_VMXBAOhzEemQArtQ3KXIEg">
@@ -92,6 +93,22 @@
                   <styles xsi:type="notation:FontStyle" xmi:id="_QBXJchoQEeqgCI2q-MOxEg"/>
                   <styles xsi:type="notation:BooleanValueStyle" xmi:id="_QBZlsBoQEeqgCI2q-MOxEg" name="isHorizontal" booleanValue="true"/>
                   <layoutConstraint xsi:type="notation:Bounds" xmi:id="_QBXJcxoQEeqgCI2q-MOxEg" x="449" y="73"/>
+                </children>
+                <children xmi:id="_rpi0EBrZEeqnP-coKq3LzQ" type="State" element="_rpfwwBrZEeqnP-coKq3LzQ">
+                  <children xsi:type="notation:DecorationNode" xmi:id="_rpkpQBrZEeqnP-coKq3LzQ" type="StateName">
+                    <styles xsi:type="notation:ShapeStyle" xmi:id="_rpkpQRrZEeqnP-coKq3LzQ"/>
+                    <layoutConstraint xsi:type="notation:Location" xmi:id="_rpkpQhrZEeqnP-coKq3LzQ"/>
+                  </children>
+                  <children xsi:type="notation:Compartment" xmi:id="_rplQUBrZEeqnP-coKq3LzQ" type="StateTextCompartment">
+                    <children xsi:type="notation:Shape" xmi:id="_rplQURrZEeqnP-coKq3LzQ" type="StateTextCompartmentExpression" fontName="Verdana" lineColor="4210752">
+                      <layoutConstraint xsi:type="notation:Bounds" xmi:id="_rplQUhrZEeqnP-coKq3LzQ"/>
+                    </children>
+                  </children>
+                  <children xsi:type="notation:Compartment" xmi:id="_rpl3YBrZEeqnP-coKq3LzQ" type="StateFigureCompartment"/>
+                  <styles xsi:type="notation:ShapeStyle" xmi:id="_rpi0ERrZEeqnP-coKq3LzQ" fontName="Verdana" fillColor="15981773" lineColor="12632256"/>
+                  <styles xsi:type="notation:FontStyle" xmi:id="_rpi0EhrZEeqnP-coKq3LzQ"/>
+                  <styles xsi:type="notation:BooleanValueStyle" xmi:id="_rpl3YRrZEeqnP-coKq3LzQ" name="isHorizontal" booleanValue="true"/>
+                  <layoutConstraint xsi:type="notation:Bounds" xmi:id="_rpi0ExrZEeqnP-coKq3LzQ" x="125" y="278"/>
                 </children>
                 <layoutConstraint xsi:type="notation:Bounds" xmi:id="_ghvcv-iBEemqP5HA9Waohw"/>
               </children>
@@ -203,16 +220,16 @@
       <sourceAnchor xsi:type="notation:IdentityAnchor" xmi:id="_T9Q-UBoQEeqgCI2q-MOxEg" id="(0.792,0.6832298136645962)"/>
       <targetAnchor xsi:type="notation:IdentityAnchor" xmi:id="_T9Q-URoQEeqgCI2q-MOxEg" id="(0.0056022408963585435,0.1827956989247312)"/>
     </edges>
-    <edges xmi:id="_X7MMcBoQEeqgCI2q-MOxEg" type="Transition" element="_X7K-UBoQEeqgCI2q-MOxEg" source="_QBXJcBoQEeqgCI2q-MOxEg" target="_ghvcheiBEemqP5HA9Waohw">
+    <edges xmi:id="_X7MMcBoQEeqgCI2q-MOxEg" type="Transition" element="_X7K-UBoQEeqgCI2q-MOxEg" source="_QBXJcBoQEeqgCI2q-MOxEg" target="_rpi0EBrZEeqnP-coKq3LzQ">
       <children xsi:type="notation:DecorationNode" xmi:id="_X7MzgRoQEeqgCI2q-MOxEg" type="TransitionExpression">
         <styles xsi:type="notation:ShapeStyle" xmi:id="_X7MzghoQEeqgCI2q-MOxEg"/>
-        <layoutConstraint xsi:type="notation:Location" xmi:id="_X7MzgxoQEeqgCI2q-MOxEg" x="24" y="-29"/>
+        <layoutConstraint xsi:type="notation:Location" xmi:id="_X7MzgxoQEeqgCI2q-MOxEg" x="10" y="-29"/>
       </children>
       <styles xsi:type="notation:ConnectorStyle" xmi:id="_X7MMcRoQEeqgCI2q-MOxEg" routing="Rectilinear" lineColor="4210752"/>
       <styles xsi:type="notation:FontStyle" xmi:id="_X7MzgBoQEeqgCI2q-MOxEg" fontName="Verdana"/>
-      <bendpoints xsi:type="notation:RelativeBendpoints" xmi:id="_X7MMchoQEeqgCI2q-MOxEg" points="[131, 87, 361, 96]$[131, 172, 361, 181]$[-73, 172, 157, 181]$[-73, 114, 157, 123]$[-201, 114, 29, 123]$[-201, 6, 29, 15]"/>
+      <bendpoints xsi:type="notation:RelativeBendpoints" xmi:id="_X7MMchoQEeqgCI2q-MOxEg" points="[124, 94, 389, -40]$[124, 166, 389, 32]$[-284, 166, -19, 32]$[-284, 151, -19, 17]"/>
       <sourceAnchor xsi:type="notation:IdentityAnchor" xmi:id="_X7OosBoQEeqgCI2q-MOxEg" id="(0.0056022408963585435,0.521505376344086)"/>
-      <targetAnchor xsi:type="notation:IdentityAnchor" xmi:id="_X7OosRoQEeqgCI2q-MOxEg" id="(0.504,0.906832298136646)"/>
+      <targetAnchor xsi:type="notation:IdentityAnchor" xmi:id="_X7OosRoQEeqgCI2q-MOxEg" id="(0.9027777777777778,0.660377358490566)"/>
     </edges>
   </notation:Diagram>
 </xmi:XMI>

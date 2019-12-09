@@ -61,7 +61,7 @@ static simple_ble_service_t led_service = {{
 static simple_ble_char_t display_state_char = {.uuid16 = 0x1090};
 static char display_buffer[16];
 
-int robot_selector;
+float robot_selector;
 float curr_x;
 float curr_y;
 float desired_x;
@@ -76,36 +76,30 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   }
   msg = (float) atof(display_buffer);
   int count = 0;
-  char rs[4];
-  char cx[4];
-  char cy[4];
-  char dx[4];
-  char dy[4];
-  for (int i =0; i < 16; i++) {
-  	if (i == ':') {
-  	  count++;
-  	}
+  char delim[] = ":";
+  char temp[16];
+  strcpy(temp, display_buffer);
+  int size = strlen(display_buffer);
+  char *ptr = strtok(temp, delim); 
+  while (ptr != NULL) {
   	if (count == 0) {
-  	  strcat(rs, display_buffer[i]);
+  	  robot_selector = (float) atof(ptr);
   	}
   	if (count == 1) {
-  	  strcat(cx, display_buffer[i]);
+  	  curr_x = (float) atof(ptr);
   	}
   	if (count == 2) {
-  	  strcat(cy, display_buffer[i]);
+  	  curr_y = (float) atof(ptr);
   	}
   	if (count == 3) {
-  	  strcat(dx, display_buffer[i]);
+  	  desired_x = (float) atof(ptr);
   	}
   	if (count == 4) {
-  	  strcat(dy, display_buffer[i]);
+  	  desired_y = (float) atof(ptr);
   	}
+  	count++;
+  	ptr = strtok(NULL, delim);
   }
-  robot_selector = (int) atof(rs);
-  curr_x = (float) atof(cx);
-  curr_y = (float) atof(cy);
-  desired_x = (float) atof(dx);
-  desired_y = (float) atof(dy);
   for(int i = 0; i < 16; i++) {  
     display_buffer[i] = '\0';
   }

@@ -34,7 +34,8 @@
 
 extern KobukiSensors_t sensors;
 extern float msg;
-extern int robot_selector;
+
+extern float robot_selector;
 extern float curr_x;
 extern float curr_y;
 extern float desired_x;
@@ -43,7 +44,7 @@ extern float desired_y;
 float get_msg(){
   return msg;
 }
-int get_rs() {
+float get_rs() {
   return robot_selector;
 }
 float get_cx() {
@@ -57,6 +58,36 @@ float get_dx() {
 }
 float get_dy() {
   return desired_y;
+}
+float find_rotation(float cx, float cy, float dx, float dy, float or) {
+  float theta;
+  float x_dist = dx - cx;
+  float dist = sqrt((dx - cx) * (dx - cx) + (dy - cy) * (dy - cy));
+  // quad 1
+  if (dx >= cx && dy >= cy) {
+    theta = asin(x_dist / dist);
+    return or - theta;
+  }
+  // quad 2
+  if (dx <= cx && dy >= cy) {
+    theta = 2*3.14159265 + asin(x_dist / dist); // neg theta
+    return or - theta;
+  }
+  // quad 3
+  if (dx <= cx && dy <= cy) {
+    theta = 3.14159265 - asin(x_dist / dist);
+    return or - theta;
+  }
+  // quad 4
+  if (dx >= cx && dy <= cy) {
+    theta = 3.14159265 - asin(x_dist / dist);
+    return or - theta;
+  }
+  return 0;
+}
+
+float find_dist(float cx, float cy, float dx, float dy) {
+  return sqrt((dx - cx) * (dx - cx) + (dy - cy) * (dy - cy));
 }
 
 uint16_t read_encoder(){
