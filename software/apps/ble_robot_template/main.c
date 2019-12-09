@@ -39,7 +39,7 @@ KobukiSensors_t sensors = {0};
 static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
-        .device_id         = 0x0000, // TODO: replace with your lab bench number
+        .device_id         = 0x0003, // TODO: replace with your lab bench number
         .adv_name          = "KOBUKI", // used in advertisements if there is room
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(100, UNIT_1_25_MS),
@@ -53,11 +53,64 @@ static simple_ble_service_t robot_service = {{
 }};
 
 // TODO: Declare characteristics and variables for your service
+// method 1
+static simple_ble_char_t forward_cmd = {.uuid16 = 0xeda1};
+static simple_ble_char_t back_cmd = {.uuid16 = 0xeda2};
+static simple_ble_char_t left_cmd = {.uuid16 = 0xeda3};
+static simple_ble_char_t right_cmd = {.uuid16 = 0xeda4};
+static simple_ble_char_t stop_cmd = {.uuid16 = 0xeda5};
+
+static bool forward = 0;
+static bool back = 0;
+static bool left = 0;
+static bool right = 0;
+static bool stop = 0;
+
+//method 2
+/*
+static simple_ble_char_t control_cmd = {.uuid16 = 0xeda1};
+static uint16_t cmd = 0;
+*/
+
+static states state = OFF;
 
 simple_ble_app_t* simple_ble_app;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
     // TODO: logic for each characteristic and related state changes
+    if (simple_ble_is_char_event(p_ble_evt, &forward_cmd)) {
+      printf("Got write to control characteristic FORWARD!\n");
+      state = FORWARD;
+    } else if (simple_ble_is_char_event(p_ble_evt, &back_cmd)) {
+      printf("Got write to control characteristic BACK!\n");
+      state = BACK;
+    } else if (simple_ble_is_char_event(p_ble_evt, &left_cmd)) {
+      printf("Got write to control characteristic LEFT!\n");
+      state = LEFT;
+    } else if (simple_ble_is_char_event(p_ble_evt, &right_cmd)) {
+      printf("Got write to control characteristic RIGHT!\n");
+      state = RIGHT;
+    } else if (simple_ble_is_char_event(p_ble_evt, &stop_cmd)) {
+      printf("Got write to control characteristic STOP!\n");
+      state = OFF;
+    }
+    // method 2
+    /*
+    if (simple_ble_is_char_event(p_ble_evt, &control_cmd)) {
+      printf("Got write to control characteristic!\n");
+      if (control_cmd == 0) {
+        state = OFF;
+      } else if (control_cmd == 1) {
+        state = FORWARD;
+      } else if (control_cmd == 2) {
+        state = BACK;
+      } else if (control_cmd == 3) {
+        state = LEFT;
+      } else if (control_cmd == 4) {
+        state = RIGHT;
+      }
+    }
+    */
 }
 
 void print_state(states current_state){
@@ -65,6 +118,18 @@ void print_state(states current_state){
 	case OFF:
 		display_write("OFF", DISPLAY_LINE_0);
 		break;
+  case FORWARD:
+    display_write("FOWARD", DISPLAY_LINE_0);
+    break;
+  case BACK:
+    display_write("BACK", DISPLAY_LINE_0);
+    break;
+  case LEFT:
+    display_write("LEFT", DISPLAY_LINE_0);
+    break;
+  case RIGHT:
+    display_write("RIGHT", DISPLAY_LINE_0);
+    break;
     }
 }
 
@@ -83,6 +148,39 @@ int main(void) {
   simple_ble_add_service(&robot_service);
 
   // TODO: Register your characteristics
+
+  // method 1
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(forward), (uint8_t*)&forward,
+      &robot_service, &forward_cmd);
+
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(back), (uint8_t*)&back,
+      &robot_service, &back_cmd);
+
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(left), (uint8_t*)&left,
+      &robot_service, &left_cmd);
+
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(right), (uint8_t*)&right,
+      &robot_service, &right_cmd);
+
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(stop), (uint8_t*)&stop,
+      &robot_service, &stop_cmd);
+
+
+  //method 2
+  /*
+  simple_ble_add_characteristic(1, 1, 0, 0,
+      sizeof(cmd), (uint8_t*)&cmd,
+      &robot_service, &control_cmd);
+
+  */
+
+
+
 
   // Start Advertising
   simple_ble_adv_only_name();
@@ -124,18 +222,17 @@ int main(void) {
   kobukiInit();
   printf("Kobuki initialized!\n");
 
-  states state = OFF;
 
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
     //int status = kobukiSensorPoll(&sensors);
-
+    print_state(state);
     // TODO: complete state machine
     switch(state) {
       case OFF: {
-        print_state(state);
-
+        kobukiDriveDirect(0, 0);
+        /*
         // transition logic
         if (is_button_pressed(&sensors)) {
           //state = NEWSTATE;
@@ -144,9 +241,25 @@ int main(void) {
           // perform state-specific actions here
           kobukiDriveDirect(0, 0);
         }
+        */
         break; // each case needs to end with break!
+      }
+      case FORWARD: {
+        kobukiDriveDirect(300, 300);
+        break;
+      }
+      case LEFT: {
+        kobukiDriveDirect(-300, 300);
+        break;
+      }
+      case RIGHT: {
+        kobukiDriveDirect(300, -300);
+        break;
+      }
+      case BACK: {
+        kobukiDriveDirect(-300, -300);
+        break;
       }
     }
   }
 }
-
