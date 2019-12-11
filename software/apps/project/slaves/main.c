@@ -3,6 +3,7 @@
 // Framework for creating applications that control the Kobuki robot
 
 #include <math.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -53,26 +54,78 @@ simple_ble_app_t* simple_ble_app; //from listener
 
 //_________________NEW LISTNENER___________________
 //NOTE: this is re-used for diplay_write characteristic
+//NOTE: 32e61089-2b22-4db5-a91443-ce41986c70
 static simple_ble_service_t led_service = {{
     .uuid128 = {0x70,0x6C,0x98,0x41,0xCE,0x43,0x14,0xA9,
                 0xB5,0x4D,0x22,0x2B,0x89,0x10,0xE6,0x32}
 }};
 
-static simple_ble_char_t display_state_char = {.uuid16 = 0x1090};
-static char display_buffer[16];
+#define BUF_LEN 64
+static simple_ble_char_t characteristic = {.uuid16 = 0x1090};
+static char display_buffer[BUF_LEN];
 
-float robot_selector;
+int robot_selector;
 float curr_x;
 float curr_y;
+float curr_theta;
 float desired_x;
 float desired_y;
 float msg;
 
+/*
+#define BUF_LEN 17
+void ble_evt_write(ble_evt_t const* p_ble_evt) {
+    char* delete_me;
+    char tmp[BUF_LEN]; //so that strlcpy will null terminate
+    if (simple_ble_is_char_event(p_ble_evt, &char_curr)) {
+      printf("got curr char: %s\n", buf_curr);
+      delete_me = buf_curr; //so that we can clear it after done
+
+
+      /* setup parsing
+      strlcpy(tmp, buf_curr, BUF_LEN); //copy and null terminate
+      size_t len = strlen(tmp); //strlen computess length up to but not including \0
+      char* rest = tmp;
+      char* token;
+
+      /* first character is always num
+      robot_selector = (int)(*rest);
+      printf("%d\n", (int)(*rest));
+      printf("%d\n", robot_selector);
+      rest++; //increment pointer
+
+      size_t count = 0;
+      while((token = strtok_r(rest, ":", &rest))) {
+            if(count == 0) {
+              curr_x = (float) atof(token);
+            }
+            if(count == 1) {
+              curr_y = (float) atof(token);
+            }
+            if (count == 2) {
+              curr_theta = (float) atof(token);
+            }
+            count++;
+      }
+
+    }
+    printf("vals: %d, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
+    if(simple_ble_is_char_event(p_ble_evt, &char_num_d_point)){
+      printf("got num_d: %s\n", buf_num_d_points);
+      delete_me = buf_num_d_points; //so that we can clear it after done
+    }
+    for(int i = 0; i < 16; i++) {
+      *(delete_me+i) = '\0';
+    }
+
+}
+*/
+
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
 // This is code to write messages to LCD Display via bluetooth
-  if (simple_ble_is_char_event(p_ble_evt, &display_state_char)) {
-      printf("Got write to Display characteristic!\n");
-      display_write(display_buffer, DISPLAY_LINE_0);
+  if (simple_ble_is_char_event(p_ble_evt, &characteristic)) {
+      //display_write(display_buffer, DISPLAY_LINE_0);
+      printf("got curr char: %s\n", display_buffer);
   }
   msg = (float) atof(display_buffer);
   int count = 0;
@@ -80,7 +133,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   char temp[16];
   strcpy(temp, display_buffer);
   int size = strlen(display_buffer);
-  char *ptr = strtok(temp, delim); 
+  char *ptr = strtok(temp, delim);
   while (ptr != NULL) {
   	if (count == 0) {
   	  robot_selector = (float) atof(ptr);
@@ -92,15 +145,19 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   	  curr_y = (float) atof(ptr);
   	}
   	if (count == 3) {
-  	  desired_x = (float) atof(ptr);
+  	  curr_theta = (float) atof(ptr);
   	}
   	if (count == 4) {
+  	  desired_x = (float) atof(ptr);
+  	}
+  	if (count == 5) {
   	  desired_y = (float) atof(ptr);
   	}
   	count++;
   	ptr = strtok(NULL, delim);
   }
-  for(int i = 0; i < 16; i++) {  
+  printf("vals: %d, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
+  for(int i = 0; i < 16; i++) {
     display_buffer[i] = '\0';
   }
 }
@@ -219,9 +276,8 @@ int main(void) {
 
   // for LCD
   simple_ble_add_characteristic(1, 1, 0, 1,
-      sizeof(char)*16, (uint8_t*) display_buffer,
-      &led_service, &display_state_char);
-
+      sizeof(char)*BUF_LEN, (uint8_t*) display_buffer,
+      &led_service, &characteristic);
 
   //Start advertising
   simple_ble_adv_only_name();
@@ -240,7 +296,7 @@ int main(void) {
   //app_timer_init();
   //app_timer_create(&adv_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) relative_distances);
   //app_timer_start(adv_timer, APP_TIMER_TICKS(100), NULL); // 100 milliseconds
-  
+
   //LISTENER
 
   scanning_start();
