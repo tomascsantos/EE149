@@ -35,8 +35,9 @@
 extern KobukiSensors_t sensors;
 extern float msg;
 
-extern float robot_selector;
+extern int robot_selector;
 extern float curr_x;
+extern float curr_theta;
 extern float curr_y;
 extern float desired_x;
 extern float desired_y;
@@ -44,7 +45,7 @@ extern float desired_y;
 float get_msg(){
   return msg;
 }
-float get_rs() {
+int get_rs() {
   return robot_selector;
 }
 float get_cx() {
@@ -59,31 +60,25 @@ float get_dx() {
 float get_dy() {
   return desired_y;
 }
+float get_theta() {
+  return curr_theta;
+}
 float find_rotation(float cx, float cy, float dx, float dy, float or) {
-  float theta;
-  float x_dist = dx - cx;
-  float dist = sqrt((dx - cx) * (dx - cx) + (dy - cy) * (dy - cy));
-  // quad 1
-  if (dx >= cx && dy >= cy) {
-    theta = asin(x_dist / dist);
-    return or - theta;
-  }
-  // quad 2
-  if (dx <= cx && dy >= cy) {
-    theta = 2*3.14159265 + asin(x_dist / dist); // neg theta
-    return or - theta;
-  }
-  // quad 3
-  if (dx <= cx && dy <= cy) {
-    theta = 3.14159265 - asin(x_dist / dist);
-    return or - theta;
-  }
-  // quad 4
-  if (dx >= cx && dy <= cy) {
-    theta = 3.14159265 - asin(x_dist / dist);
-    return or - theta;
-  }
-  return 0;
+  double ret;
+  ret = atan2((double) (dy - cy), (double) (dx - cx));
+  return (float) (ret - or) * 180 / M_PI;
+}
+
+uint16_t left_wheel(float dist, float delta_theta) {
+  float k1 = 150;
+  float k2 = .5;
+  return (uint16_t) ((k1 * dist) + (delta_theta * k2));
+}
+
+uint16_t right_wheel(float dist, float delta_theta) {
+  float k1 = 150;
+  float k2 = .5;  
+  return (uint16_t) ((k1 * dist) - (delta_theta * k2));
 }
 
 float find_dist(float cx, float cy, float dx, float dy) {
@@ -189,17 +184,17 @@ void print_state(states current_state){
     case DRIVING:
       display_write("DRIVING", DISPLAY_LINE_0);
       break;
-    case BACKUP:
-      display_write("BACKUP", DISPLAY_LINE_0);
+    case TURN_LEFT:
+      display_write("TURN_LEFT", DISPLAY_LINE_0);
       break;
-    case RIGHT:
-      display_write("RIGHT", DISPLAY_LINE_0);
+    case TURN_RIGHT:
+      display_write("TURN_RIGHT", DISPLAY_LINE_0);
       break;
-    case LEFT:
-      display_write("LEFT", DISPLAY_LINE_0);
+    case FIND:
+      display_write("FIND", DISPLAY_LINE_0);
       break;
-    case REORIENT:
-      display_write("REORIENT", DISPLAY_LINE_0);
+    case STOP:
+      display_write("STOP", DISPLAY_LINE_0);
       break;
   }
 }

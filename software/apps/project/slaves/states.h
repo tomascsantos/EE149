@@ -13,11 +13,10 @@
 typedef enum {
     OFF=0,
     DRIVING,
-	BACKUP,
-	RIGHT,
-	LEFT,
-	REORIENT,
-	FUYCKYAH,
+	TURN_LEFT,
+	TURN_RIGHT,
+	STOP,
+	FIND,
 } states;
 
 typedef enum {
