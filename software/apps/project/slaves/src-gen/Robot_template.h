@@ -16,7 +16,7 @@ extern "C" {
 
 /*! Define number of states in the state enum */
 
-#define ROBOT_TEMPLATE_STATE_COUNT 4
+#define ROBOT_TEMPLATE_STATE_COUNT 5
 
 /*! Define dimension of the state configuration vector for orthogonal states. */
 #define ROBOT_TEMPLATE_MAX_ORTHOGONAL_STATES 1
@@ -26,6 +26,7 @@ extern "C" {
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_MOVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_STOP 0
+#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_CHECK 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF 0
 
 /*! Enumeration of all states */ 
@@ -35,6 +36,7 @@ typedef enum
 	Robot_template_main_region_ACTIVE,
 	Robot_template_main_region_ACTIVE_r1_Move,
 	Robot_template_main_region_ACTIVE_r1_Stop,
+	Robot_template_main_region_ACTIVE_r1_Check,
 	Robot_template_main_region_OFF
 } Robot_templateStates;
 
@@ -61,8 +63,6 @@ typedef struct
 	sc_boolean cliff_r;
 	float theta;
 	float angle_d;
-	sc_boolean uphill;
-	uint16_t direction;
 } Robot_templateIface;
 
 
@@ -159,14 +159,6 @@ extern void robot_templateIface_set_theta(Robot_template* handle, float value);
 extern float robot_templateIface_get_angle_d(const Robot_template* handle);
 /*! Sets the value of the variable 'angle_d' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_angle_d(Robot_template* handle, float value);
-/*! Gets the value of the variable 'uphill' that is defined in the default interface scope. */ 
-extern sc_boolean robot_templateIface_get_uphill(const Robot_template* handle);
-/*! Sets the value of the variable 'uphill' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_uphill(Robot_template* handle, sc_boolean value);
-/*! Gets the value of the variable 'direction' that is defined in the default interface scope. */ 
-extern uint16_t robot_templateIface_get_direction(const Robot_template* handle);
-/*! Sets the value of the variable 'direction' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_direction(Robot_template* handle, uint16_t value);
 
 /*!
  * Checks whether the state machine is active (until 2.4.1 this method was used for states).

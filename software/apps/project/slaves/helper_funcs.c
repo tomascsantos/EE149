@@ -66,19 +66,26 @@ float get_theta() {
 float find_rotation(float cx, float cy, float dx, float dy, float or) {
   double ret;
   ret = atan2((double) (dy - cy), (double) (dx - cx));
-  return (float) (ret - or) * 180 / M_PI;
+  ret = (ret - or) * 180 / M_PI;
+  if (ret <= -180) {
+    return ret + 360;
+  }
+  if (ret >= 180) {
+    return ret - 360;
+  }
+  return ret;
 }
 
 uint16_t left_wheel(float dist, float delta_theta) {
-  float k1 = 150;
+  float k1 = 120;
   float k2 = .5;
-  return (uint16_t) ((k1 * dist) + (delta_theta * k2));
+  return (uint16_t) ((k1 * dist) - (delta_theta * k2));
 }
 
 uint16_t right_wheel(float dist, float delta_theta) {
-  float k1 = 150;
+  float k1 = 120;
   float k2 = .5;  
-  return (uint16_t) ((k1 * dist) - (delta_theta * k2));
+  return (uint16_t) ((k1 * dist) + (delta_theta * k2));
 }
 
 float find_dist(float cx, float cy, float dx, float dy) {

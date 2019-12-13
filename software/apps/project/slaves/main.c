@@ -135,6 +135,8 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   int size = strlen(display_buffer);
   char *ptr = strtok(temp, delim);
   while (ptr != NULL) {
+  	printf("start: %s\n", ptr);
+
   	if (count == 0) {
   	  robot_selector = (int) atof(ptr);
   	}
@@ -155,8 +157,10 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   	}
   	count++;
   	ptr = strtok(NULL, delim);
+  	printf("end: %s\n", ptr);
+
   }
-  printf("vals: %f, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
+  printf("vals: %d, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
   for(int i = 0; i < 16; i++) {
     display_buffer[i] = '\0';
   }
