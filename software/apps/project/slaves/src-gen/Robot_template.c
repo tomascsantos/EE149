@@ -10,20 +10,20 @@
 static void enact_main_region_ACTIVE(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Move(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Stop(Robot_template* handle);
-static void enact_main_region_ACTIVE_r1_Check(Robot_template* handle);
+static void enact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle);
 static void enact_main_region_OFF(Robot_template* handle);
-static void exact_main_region_ACTIVE_r1_Move(Robot_template* handle);
+static void exact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle);
 static void enseq_main_region_ACTIVE_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Move_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Stop_default(Robot_template* handle);
-static void enseq_main_region_ACTIVE_r1_Check_default(Robot_template* handle);
+static void enseq_main_region_ACTIVE_r1_Heuristic_default(Robot_template* handle);
 static void enseq_main_region_OFF_default(Robot_template* handle);
 static void enseq_main_region_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_default(Robot_template* handle);
 static void exseq_main_region_ACTIVE(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Move(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1_Stop(Robot_template* handle);
-static void exseq_main_region_ACTIVE_r1_Check(Robot_template* handle);
+static void exseq_main_region_ACTIVE_r1_Heuristic(Robot_template* handle);
 static void exseq_main_region_OFF(Robot_template* handle);
 static void exseq_main_region(Robot_template* handle);
 static void exseq_main_region_ACTIVE_r1(Robot_template* handle);
@@ -33,7 +33,7 @@ static sc_boolean react(Robot_template* handle);
 static sc_boolean main_region_ACTIVE_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_ACTIVE_r1_Stop_react(Robot_template* handle, const sc_boolean try_transition);
-static sc_boolean main_region_ACTIVE_r1_Check_react(Robot_template* handle, const sc_boolean try_transition);
+static sc_boolean main_region_ACTIVE_r1_Heuristic_react(Robot_template* handle, const sc_boolean try_transition);
 static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean try_transition);
 static void clearInEvents(Robot_template* handle);
 static void clearOutEvents(Robot_template* handle);
@@ -70,7 +70,8 @@ void robot_template_init(Robot_template* handle)
 	handle->iface.cliff_l = bool_false;
 	handle->iface.cliff_r = bool_false;
 	handle->iface.theta = 0.0f;
-	handle->iface.angle_d = 0;
+	handle->iface.angle_d = 0.0f;
+	handle->iface.prev_x = 0.0f;
 }
 
 void robot_template_enter(Robot_template* handle)
@@ -99,9 +100,9 @@ void robot_template_runCycle(Robot_template* handle)
 			main_region_ACTIVE_r1_Stop_react(handle, bool_true);
 			break;
 		}
-		case Robot_template_main_region_ACTIVE_r1_Check:
+		case Robot_template_main_region_ACTIVE_r1_Heuristic:
 		{
-			main_region_ACTIVE_r1_Check_react(handle, bool_true);
+			main_region_ACTIVE_r1_Heuristic_react(handle, bool_true);
 			break;
 		}
 		case Robot_template_main_region_OFF:
@@ -153,7 +154,7 @@ sc_boolean robot_template_isStateActive(const Robot_template* handle, Robot_temp
 	{
 		case Robot_template_main_region_ACTIVE :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] >= Robot_template_main_region_ACTIVE
-				&& handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] <= Robot_template_main_region_ACTIVE_r1_Check);
+				&& handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE] <= Robot_template_main_region_ACTIVE_r1_Heuristic);
 			break;
 		case Robot_template_main_region_ACTIVE_r1_Move :
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_MOVE] == Robot_template_main_region_ACTIVE_r1_Move
@@ -163,8 +164,8 @@ sc_boolean robot_template_isStateActive(const Robot_template* handle, Robot_temp
 			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_STOP] == Robot_template_main_region_ACTIVE_r1_Stop
 			);
 			break;
-		case Robot_template_main_region_ACTIVE_r1_Check :
-			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_CHECK] == Robot_template_main_region_ACTIVE_r1_Check
+		case Robot_template_main_region_ACTIVE_r1_Heuristic :
+			result = (sc_boolean) (handle->stateConfVector[SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_HEURISTIC] == Robot_template_main_region_ACTIVE_r1_Heuristic
 			);
 			break;
 		case Robot_template_main_region_OFF :
@@ -316,6 +317,14 @@ void robot_templateIface_set_angle_d(Robot_template* handle, float value)
 {
 	handle->iface.angle_d = value;
 }
+float robot_templateIface_get_prev_x(const Robot_template* handle)
+{
+	return handle->iface.prev_x;
+}
+void robot_templateIface_set_prev_x(Robot_template* handle, float value)
+{
+	handle->iface.prev_x = value;
+}
 
 /* implementations of all internal functions */
 
@@ -338,14 +347,16 @@ static void enact_main_region_ACTIVE_r1_Move(Robot_template* handle)
 static void enact_main_region_ACTIVE_r1_Stop(Robot_template* handle)
 {
 	/* Entry action for state 'Stop'. */
+	stop_gyro();
 	handle->iface.curr_state = STOP;
 }
 
-/* Entry action for state 'Check'. */
-static void enact_main_region_ACTIVE_r1_Check(Robot_template* handle)
+/* Entry action for state 'Heuristic'. */
+static void enact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle)
 {
-	/* Entry action for state 'Check'. */
+	/* Entry action for state 'Heuristic'. */
 	handle->iface.curr_state = FIND;
+	handle->iface.prev_x = handle->iface.cx;
 }
 
 /* Entry action for state 'OFF'. */
@@ -355,10 +366,10 @@ static void enact_main_region_OFF(Robot_template* handle)
 	handle->iface.pushed = bool_false;
 }
 
-/* Exit action for state 'Move'. */
-static void exact_main_region_ACTIVE_r1_Move(Robot_template* handle)
+/* Exit action for state 'Heuristic'. */
+static void exact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle)
 {
-	/* Exit action for state 'Move'. */
+	/* Exit action for state 'Heuristic'. */
 	stop_gyro();
 }
 
@@ -388,12 +399,12 @@ static void enseq_main_region_ACTIVE_r1_Stop_default(Robot_template* handle)
 	handle->stateConfVectorPosition = 0;
 }
 
-/* 'default' enter sequence for state Check */
-static void enseq_main_region_ACTIVE_r1_Check_default(Robot_template* handle)
+/* 'default' enter sequence for state Heuristic */
+static void enseq_main_region_ACTIVE_r1_Heuristic_default(Robot_template* handle)
 {
-	/* 'default' enter sequence for state Check */
-	enact_main_region_ACTIVE_r1_Check(handle);
-	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Check;
+	/* 'default' enter sequence for state Heuristic */
+	enact_main_region_ACTIVE_r1_Heuristic(handle);
+	handle->stateConfVector[0] = Robot_template_main_region_ACTIVE_r1_Heuristic;
 	handle->stateConfVectorPosition = 0;
 }
 
@@ -433,7 +444,6 @@ static void exseq_main_region_ACTIVE_r1_Move(Robot_template* handle)
 	/* Default exit sequence for state Move */
 	handle->stateConfVector[0] = Robot_template_last_state;
 	handle->stateConfVectorPosition = 0;
-	exact_main_region_ACTIVE_r1_Move(handle);
 }
 
 /* Default exit sequence for state Stop */
@@ -444,12 +454,13 @@ static void exseq_main_region_ACTIVE_r1_Stop(Robot_template* handle)
 	handle->stateConfVectorPosition = 0;
 }
 
-/* Default exit sequence for state Check */
-static void exseq_main_region_ACTIVE_r1_Check(Robot_template* handle)
+/* Default exit sequence for state Heuristic */
+static void exseq_main_region_ACTIVE_r1_Heuristic(Robot_template* handle)
 {
-	/* Default exit sequence for state Check */
+	/* Default exit sequence for state Heuristic */
 	handle->stateConfVector[0] = Robot_template_last_state;
 	handle->stateConfVectorPosition = 0;
+	exact_main_region_ACTIVE_r1_Heuristic(handle);
 }
 
 /* Default exit sequence for state OFF */
@@ -477,9 +488,9 @@ static void exseq_main_region(Robot_template* handle)
 			exseq_main_region_ACTIVE_r1_Stop(handle);
 			break;
 		}
-		case Robot_template_main_region_ACTIVE_r1_Check :
+		case Robot_template_main_region_ACTIVE_r1_Heuristic :
 		{
-			exseq_main_region_ACTIVE_r1_Check(handle);
+			exseq_main_region_ACTIVE_r1_Heuristic(handle);
 			break;
 		}
 		case Robot_template_main_region_OFF :
@@ -508,9 +519,9 @@ static void exseq_main_region_ACTIVE_r1(Robot_template* handle)
 			exseq_main_region_ACTIVE_r1_Stop(handle);
 			break;
 		}
-		case Robot_template_main_region_ACTIVE_r1_Check :
+		case Robot_template_main_region_ACTIVE_r1_Heuristic :
 		{
-			exseq_main_region_ACTIVE_r1_Check(handle);
+			exseq_main_region_ACTIVE_r1_Heuristic(handle);
 			break;
 		}
 		default: break;
@@ -581,10 +592,10 @@ static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const
 				enseq_main_region_ACTIVE_r1_Stop_default(handle);
 			}  else
 			{
-				if ((get_abs(handle->iface.theta)) > (get_abs(handle->iface.angle)))
+				if (use_heuristic(handle->iface.theta, handle->iface.angle) == bool_true)
 				{ 
 					exseq_main_region_ACTIVE_r1_Move(handle);
-					enseq_main_region_ACTIVE_r1_Check_default(handle);
+					enseq_main_region_ACTIVE_r1_Heuristic_default(handle);
 				}  else
 				{
 					did_transition = bool_false;
@@ -598,7 +609,7 @@ static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const
 		handle->iface.right_speed = right_wheel(handle->iface.distance, handle->iface.angle);
 		drive_kobuki(handle->iface.left_speed, handle->iface.right_speed);
 		handle->iface.theta = read_gyro();
-		print_angle(handle->iface.angle);
+		print_angle(handle->iface.theta);
 	} 
 	return did_transition;
 }
@@ -628,8 +639,8 @@ static sc_boolean main_region_ACTIVE_r1_Stop_react(Robot_template* handle, const
 	return did_transition;
 }
 
-static sc_boolean main_region_ACTIVE_r1_Check_react(Robot_template* handle, const sc_boolean try_transition) {
-	/* The reactions of state Check. */
+static sc_boolean main_region_ACTIVE_r1_Heuristic_react(Robot_template* handle, const sc_boolean try_transition) {
+	/* The reactions of state Heuristic. */
 	sc_boolean did_transition = try_transition;
 	if (try_transition == bool_true)
 	{ 
@@ -637,18 +648,26 @@ static sc_boolean main_region_ACTIVE_r1_Check_react(Robot_template* handle, cons
 		{ 
 			if ((handle->iface.distance) < (0.2))
 			{ 
-				exseq_main_region_ACTIVE_r1_Check(handle);
+				exseq_main_region_ACTIVE_r1_Heuristic(handle);
 				enseq_main_region_ACTIVE_r1_Stop_default(handle);
 			}  else
 			{
-				did_transition = bool_false;
+				if (stop_heuristic(handle->iface.prev_x, handle->iface.cx) == bool_true)
+				{ 
+					exseq_main_region_ACTIVE_r1_Heuristic(handle);
+					enseq_main_region_ACTIVE_r1_Move_default(handle);
+				}  else
+				{
+					did_transition = bool_false;
+				}
 			}
 		} 
 	} 
 	if ((did_transition) == (bool_false))
 	{ 
-		handle->iface.left_speed = left_wheel(handle->iface.distance, 0);
-		handle->iface.right_speed = right_wheel(handle->iface.distance, 0);
+		handle->iface.theta = read_gyro();
+		handle->iface.left_speed = left_heuristic(handle->iface.distance, handle->iface.theta, handle->iface.angle);
+		handle->iface.right_speed = right_heuristic(handle->iface.distance, handle->iface.theta, handle->iface.angle);
 		drive_kobuki(handle->iface.left_speed, handle->iface.right_speed);
 		print_dist(handle->iface.distance);
 	} 

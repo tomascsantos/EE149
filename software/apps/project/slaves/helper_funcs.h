@@ -38,6 +38,11 @@ extern float get_dy();
 extern float get_msg();
 extern float get_theta();
 
+extern bool use_heuristic(float gyro, float angle);
+extern bool stop_heuristic(float prev_x, float curr_x);
+extern uint16_t left_heuristic(float dist, float gyro, float angle);
+extern uint16_t right_heuristic(float dist, float gyro, float angle);
+
 extern float find_rotation(float cx, float cy, float dx, float dy, float or);
 extern float find_dist(float cx, float cy, float dx, float dy);
 

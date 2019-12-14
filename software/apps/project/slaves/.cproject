@@ -3,9 +3,9 @@
     	
     <storageModule moduleId="org.eclipse.cdt.core.settings">
         		
-        <cconfiguration id="0.2025389258">
+        <cconfiguration id="0.2086349367">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.2025389258" moduleId="org.eclipse.cdt.core.settings" name="Default">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.2086349367" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 				
                 <externalSettings/>
                 				
@@ -29,33 +29,33 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildProperties="" description="" id="0.2025389258" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+                <configuration buildProperties="" description="" id="0.2086349367" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
                     					
-                    <folderInfo id="0.2025389258." name="/" resourcePath="">
+                    <folderInfo id="0.2086349367." name="/" resourcePath="">
                         						
-                        <toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1728372492" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+                        <toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1249667447" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
                             							
-                            <targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1728372492.2005608756" name=""/>
+                            <targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1249667447.665182034" name=""/>
                             							
-                            <builder id="org.eclipse.cdt.build.core.settings.default.builder.1753506675" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+                            <builder id="org.eclipse.cdt.build.core.settings.default.builder.851409338" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
                             							
-                            <tool id="org.eclipse.cdt.build.core.settings.holder.libs.102421114" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+                            <tool id="org.eclipse.cdt.build.core.settings.holder.libs.1334682975" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
                             							
-                            <tool id="org.eclipse.cdt.build.core.settings.holder.337473848" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+                            <tool id="org.eclipse.cdt.build.core.settings.holder.594552770" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
                                 								
-                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.79020195" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.583487969" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
                                 							
                             </tool>
                             							
-                            <tool id="org.eclipse.cdt.build.core.settings.holder.269828325" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+                            <tool id="org.eclipse.cdt.build.core.settings.holder.172141759" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
                                 								
-                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1590470652" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.227858799" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
                                 							
                             </tool>
                             							
-                            <tool id="org.eclipse.cdt.build.core.settings.holder.1934024971" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+                            <tool id="org.eclipse.cdt.build.core.settings.holder.1798066933" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
                                 								
-                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.135374048" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+                                <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1278124271" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
                                 							
                             </tool>
                             						
@@ -75,7 +75,7 @@
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
-        <project id="slaves.null.1830856324" name="slaves"/>
+        <project id="slaves.null.558495578" name="slaves"/>
         	
     </storageModule>
     	
@@ -96,6 +96,12 @@
         </scannerConfigBuildInfo>
         		
         <scannerConfigBuildInfo instanceId="0.473793571">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="0.2086349367">
             			
             <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
             		

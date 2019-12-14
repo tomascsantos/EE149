@@ -26,7 +26,7 @@ extern "C" {
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_MOVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_STOP 0
-#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_CHECK 0
+#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_HEURISTIC 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF 0
 
 /*! Enumeration of all states */ 
@@ -36,7 +36,7 @@ typedef enum
 	Robot_template_main_region_ACTIVE,
 	Robot_template_main_region_ACTIVE_r1_Move,
 	Robot_template_main_region_ACTIVE_r1_Stop,
-	Robot_template_main_region_ACTIVE_r1_Check,
+	Robot_template_main_region_ACTIVE_r1_Heuristic,
 	Robot_template_main_region_OFF
 } Robot_templateStates;
 
@@ -63,6 +63,7 @@ typedef struct
 	sc_boolean cliff_r;
 	float theta;
 	float angle_d;
+	float prev_x;
 } Robot_templateIface;
 
 
@@ -159,6 +160,10 @@ extern void robot_templateIface_set_theta(Robot_template* handle, float value);
 extern float robot_templateIface_get_angle_d(const Robot_template* handle);
 /*! Sets the value of the variable 'angle_d' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_angle_d(Robot_template* handle, float value);
+/*! Gets the value of the variable 'prev_x' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_prev_x(const Robot_template* handle);
+/*! Sets the value of the variable 'prev_x' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_prev_x(Robot_template* handle, float value);
 
 /*!
  * Checks whether the state machine is active (until 2.4.1 this method was used for states).

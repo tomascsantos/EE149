@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "helper_funcs.h"
-#include "states.h"
+#include "states.h" 
 
 #include "app_error.h"
 #include "app_timer.h"
@@ -41,6 +41,29 @@ extern float curr_theta;
 extern float curr_y;
 extern float desired_x;
 extern float desired_y;
+
+// returns true when gyro is greater than half the angle
+bool use_heuristic(float gyro, float angle) {
+  return (fabs(gyro) > (fabs(angle) / 2));
+}
+
+bool stop_heuristic(float prev_x, float curr_x) {
+  return (prev_x != curr_x);
+}
+
+// return speeds for left wheel
+uint16_t left_heuristic(float dist, float gyro, float angle) {
+  float k1 = 70;
+  float k2 = .5;
+  return (uint16_t) ((k1 * dist) - ((angle - gyro) * k2));
+}
+
+//return speeds for right wheel
+uint16_t right_heuristic(float dist, float gyro, float angle) {
+  float k1 = 70;
+  float k2 = .5;  
+  return (uint16_t) ((k1 * dist) + ((angle - gyro) * k2));
+}
 
 float get_msg(){
   return msg;

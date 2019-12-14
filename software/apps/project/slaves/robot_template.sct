@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:sgraph="http://www.yakindu.org/sct/sgraph/2.0.0">
-  <sgraph:Statechart xmi:id="_MvNJgMFBEeipM4DyHdzJFg" specification="@CycleBased(200)&#xA;import: &quot;states.h&quot;&#xA;import: &quot;helper_funcs.h&quot;&#xA;&#xA;interface:&#xA;// Define events and&#xA;// and variables here. &#xA;//Use CTRL + Space for content assist.&#xA;var pushed:bool=false&#xA;var distance:float=0.0f&#xA;var dist:float=0.0f&#xA;var cx:float=0.0f&#xA;var cy:float=0.0f&#xA;var dx:float=0.0f&#xA;var dy:float=0.0f&#xA;var angle:float=0.0f&#xA;var prev_encoder:uint16_t=0&#xA;var curr_state:states=states.OFF&#xA;var right_speed:uint16_t=0&#xA;var left_speed:uint16_t=0&#xA;var cliff_l:bool=false&#xA;var cliff_r:bool=false&#xA;var theta:float=0.0f&#xA;var angle_d:float=0" name="robot_template" domainID="com.yakindu.domain.c">
+  <sgraph:Statechart xmi:id="_MvNJgMFBEeipM4DyHdzJFg" specification="@CycleBased(200)&#xA;import: &quot;states.h&quot;&#xA;import: &quot;helper_funcs.h&quot;&#xA;&#xA;interface:&#xA;// Define events and&#xA;// and variables here. &#xA;//Use CTRL + Space for content assist.&#xA;var pushed:bool=false&#xA;var distance:float=0.0f&#xA;var dist:float=0.0f&#xA;var cx:float=0.0f&#xA;var cy:float=0.0f&#xA;var dx:float=0.0f&#xA;var dy:float=0.0f&#xA;var angle:float=0.0f&#xA;var prev_encoder:uint16_t=0&#xA;var curr_state:states=states.OFF&#xA;var right_speed:uint16_t=0&#xA;var left_speed:uint16_t=0&#xA;var cliff_l:bool=false&#xA;var cliff_r:bool=false&#xA;var theta:float=0.0f&#xA;var angle_d:float=0.0f&#xA;var prev_x:float=0.0f" name="robot_template" domainID="com.yakindu.domain.c">
     <regions xmi:id="_MvRa88FBEeipM4DyHdzJFg" name="main region">
       <vertices xsi:type="sgraph:State" xmi:id="_bEa2AOhyEemQArtQ3KXIEg" specification="entry/&#xA;pushed=false&#xA;always/&#xA;pushed=is_button_press();&#xA;cx = get_cx();&#xA;cy = get_cy();&#xA;dx = get_dx();&#xA;dy = get_dy();&#xA;angle_d = get_theta();&#xA;angle = find_rotation(cx,cy,dx,dy,angle_d);&#xA;distance = find_dist(cx,cy,dx,dy);&#xA;print_state(curr_state)" name="ACTIVE" incomingTransitions="_nWvGwOhzEemQArtQ3KXIEg">
         <outgoingTransitions xmi:id="_Y2CoAOh0EemQArtQ3KXIEg" specification="[pushed]" target="_c0AkUOhyEemQArtQ3KXIEg"/>
         <regions xmi:id="_bEd5UOhyEemQArtQ3KXIEg" name="r1">
-          <vertices xsi:type="sgraph:State" xmi:id="_gJNlkOhyEemQArtQ3KXIEg" specification="entry/&#xA;curr_state = states.DRIVING;&#xA;start_gyro()&#xA;always/&#xA;left_speed = left_wheel(distance, angle);&#xA;right_speed = right_wheel(distance, angle);&#xA;drive_kobuki(left_speed,right_speed);&#xA;theta = read_gyro();&#xA;print_angle(angle)&#xA;exit/&#xA;stop_gyro()" name="Move" incomingTransitions="_j7zUEBoPEeqgCI2q-MOxEg _cgkB0ByREeqH3Lem_5r4Sg">
+          <vertices xsi:type="sgraph:State" xmi:id="_gJNlkOhyEemQArtQ3KXIEg" specification="entry/&#xA;curr_state = states.DRIVING;&#xA;start_gyro()&#xA;always/&#xA;left_speed = left_wheel(distance, angle);&#xA;right_speed = right_wheel(distance, angle);&#xA;drive_kobuki(left_speed, right_speed);&#xA;theta = read_gyro();&#xA;print_angle(theta)" name="Move" incomingTransitions="_j7zUEBoPEeqgCI2q-MOxEg _cgkB0ByREeqH3Lem_5r4Sg _zZeMkB3sEeqUpsXheu4RFw">
             <outgoingTransitions xmi:id="_cFQl4ByREeqH3Lem_5r4Sg" specification="[distance &lt; 0.2]" target="_Spnx4ByREeqH3Lem_5r4Sg"/>
-            <outgoingTransitions xmi:id="_w4ppIB09EeqK0saEtpke6w" specification="[get_abs(theta) > get_abs(angle)]" target="_J2gDQB09EeqK0saEtpke6w"/>
+            <outgoingTransitions xmi:id="_w4ppIB09EeqK0saEtpke6w" specification="[use_heuristic(theta, angle)]" target="_J2gDQB09EeqK0saEtpke6w"/>
           </vertices>
           <vertices xsi:type="sgraph:Entry" xmi:id="_T_JKgOh0EemQArtQ3KXIEg">
             <outgoingTransitions xmi:id="_j7zUEBoPEeqgCI2q-MOxEg" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
-          <vertices xsi:type="sgraph:State" xmi:id="_Spnx4ByREeqH3Lem_5r4Sg" specification="entry/&#xA;curr_state = states.STOP&#xA;always/&#xA;stop_kobuki();&#xA;print_dist(distance)&#xA;" name="Stop" incomingTransitions="_cFQl4ByREeqH3Lem_5r4Sg _-jC8kB09EeqK0saEtpke6w">
+          <vertices xsi:type="sgraph:State" xmi:id="_Spnx4ByREeqH3Lem_5r4Sg" specification="entry/&#xA;stop_gyro();&#xA;curr_state = states.STOP&#xA;always/&#xA;stop_kobuki();&#xA;print_dist(distance)&#xA;" name="Stop" incomingTransitions="_cFQl4ByREeqH3Lem_5r4Sg _-jC8kB09EeqK0saEtpke6w">
             <outgoingTransitions xmi:id="_cgkB0ByREeqH3Lem_5r4Sg" specification="[distance > 0.2]" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
-          <vertices xsi:type="sgraph:State" xmi:id="_J2gDQB09EeqK0saEtpke6w" specification="entry/&#xA;curr_state = states.FIND&#xA;always/&#xA;left_speed = left_wheel(distance, 0);&#xA;right_speed = right_wheel(distance, 0);&#xA;drive_kobuki(left_speed,right_speed);&#xA;print_dist(distance)" name="Check" incomingTransitions="_w4ppIB09EeqK0saEtpke6w">
+          <vertices xsi:type="sgraph:State" xmi:id="_J2gDQB09EeqK0saEtpke6w" specification="entry/&#xA;curr_state = states.FIND;&#xA;prev_x = cx&#xA;always/&#xA;theta = read_gyro();&#xA;left_speed = left_heuristic(distance, theta, angle);&#xA;right_speed = right_heuristic(distance, theta, angle);&#xA;drive_kobuki(left_speed,right_speed);&#xA;print_dist(distance)&#xA;exit/&#xA;stop_gyro()" name="Heuristic" incomingTransitions="_w4ppIB09EeqK0saEtpke6w">
             <outgoingTransitions xmi:id="_-jC8kB09EeqK0saEtpke6w" specification="[distance &lt; 0.2]" target="_Spnx4ByREeqH3Lem_5r4Sg"/>
+            <outgoingTransitions xmi:id="_zZeMkB3sEeqUpsXheu4RFw" specification="[stop_heuristic(prev_x, cx)]" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
         </regions>
       </vertices>
@@ -255,6 +256,17 @@
       <bendpoints xsi:type="notation:RelativeBendpoints" xmi:id="_-jEKsh09EeqK0saEtpke6w" points="[13, -33, -44, 129]$[61, -148, 4, 14]"/>
       <sourceAnchor xsi:type="notation:IdentityAnchor" xmi:id="_-jF_4B09EeqK0saEtpke6w" id="(0.9226519337016574,0.3153153153153153)"/>
       <targetAnchor xsi:type="notation:IdentityAnchor" xmi:id="_-jF_4R09EeqK0saEtpke6w" id="(0.6424581005586593,0.8888888888888888)"/>
+    </edges>
+    <edges xmi:id="_zaXkcB3sEeqUpsXheu4RFw" type="Transition" element="_zZeMkB3sEeqUpsXheu4RFw" source="_J2sQgB09EeqK0saEtpke6w" target="_ghvcheiBEemqP5HA9Waohw">
+      <children xsi:type="notation:DecorationNode" xmi:id="_zaZZoB3sEeqUpsXheu4RFw" type="TransitionExpression">
+        <styles xsi:type="notation:ShapeStyle" xmi:id="_zaZZoR3sEeqUpsXheu4RFw"/>
+        <layoutConstraint xsi:type="notation:Location" xmi:id="_zaZZoh3sEeqUpsXheu4RFw" y="10"/>
+      </children>
+      <styles xsi:type="notation:ConnectorStyle" xmi:id="_zaXkcR3sEeqUpsXheu4RFw" routing="Rectilinear" lineColor="4210752"/>
+      <styles xsi:type="notation:FontStyle" xmi:id="_zaYLgB3sEeqUpsXheu4RFw" fontName="Verdana"/>
+      <bendpoints xsi:type="notation:RelativeBendpoints" xmi:id="_zaXkch3sEeqUpsXheu4RFw" points="[-11, -6, 107, 68]$[-114, -24, 4, 50]"/>
+      <sourceAnchor xsi:type="notation:IdentityAnchor" xmi:id="_zadEAB3sEeqUpsXheu4RFw" id="(0.1970260223048327,0.06382978723404255)"/>
+      <targetAnchor xsi:type="notation:IdentityAnchor" xmi:id="_zadEAR3sEeqUpsXheu4RFw" id="(0.8913738019169329,0.6880733944954128)"/>
     </edges>
   </notation:Diagram>
 </xmi:XMI>
