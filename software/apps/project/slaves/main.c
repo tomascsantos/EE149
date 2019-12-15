@@ -71,7 +71,7 @@ static char display_buffer[BUF_LEN];
 // float desired_x;
 // float desired_y;
 // float msg;
-char* buff[64];
+char buff[64];
 bool write;
 
 /*
@@ -169,8 +169,8 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   for(int i = 0; i < 64; i++) {
     display_buffer[i] = '\0';
   }
-  // stop_gyro();
-  // start_gyro();
+  stop_gyro();
+  start_gyro();
 }
 //void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
 //  //p_ble_evt is a struct of type ble_evt_t

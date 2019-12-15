@@ -35,7 +35,6 @@ extern float get_cx();
 extern float get_cy();
 extern float get_dx();
 extern float get_dy();
-extern float get_msg();
 extern float get_theta();
 
 extern void parse();

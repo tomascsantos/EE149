@@ -360,7 +360,6 @@ static void enact_main_region_ACTIVE_r1_Move(Robot_template* handle)
 	/* Entry action for state 'Move'. */
 	handle->iface.curr_state = DRIVING;
 	handle->iface.theta = 0;
-	start_gyro();
 }
 
 /* Entry action for state 'Stop'. */
@@ -391,7 +390,6 @@ static void exact_main_region_ACTIVE_r1_Move(Robot_template* handle)
 {
 	/* Exit action for state 'Move'. */
 	handle->iface.theta = 0;
-	stop_gyro();
 }
 
 /* Exit action for state 'Heuristic'. */
@@ -637,10 +635,10 @@ static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const
 	if ((did_transition) == (bool_false))
 	{ 
 		handle->iface.theta = read_gyro();
-		handle->iface.left_speed = left_wheel(handle->iface.distance, handle->iface.angle);
-		handle->iface.right_speed = right_wheel(handle->iface.distance, handle->iface.angle);
+		handle->iface.left_speed = left_wheel(handle->iface.distance, (handle->iface.angle - handle->iface.theta));
+		handle->iface.right_speed = right_wheel(handle->iface.distance, (handle->iface.angle - handle->iface.theta));
 		drive_kobuki(handle->iface.left_speed, handle->iface.right_speed);
-		print_angle(handle->iface.theta);
+		print_angle(handle->iface.angle);
 	} 
 	return did_transition;
 }

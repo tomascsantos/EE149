@@ -33,7 +33,7 @@
 #include "mpu9250.h"
 
 extern KobukiSensors_t sensors;
-extern float msg;
+
 
 int robot_selector = 0;
 float curr_x = 0;
@@ -41,7 +41,7 @@ float curr_theta = 0;
 float curr_y = 0;
 float desired_x = 0;
 float desired_y = 0;
-extern char* buff;
+extern char buff[64];
 extern bool write;
 
 void parse() {
@@ -106,9 +106,6 @@ uint16_t right_heuristic(float dist, float gyro, float angle) {
 }
 
 
-float get_msg(){
-  return msg;
-}
 int get_rs() {
   return robot_selector;
 }
@@ -142,13 +139,13 @@ float find_rotation(float cx, float cy, float dx, float dy, float or) {
 
 uint16_t left_wheel(float dist, float delta_theta) {
   float k1 = 80;
-  float k2 = .4;
+  float k2 = .6;
   return (uint16_t) ((k1 * dist) - (delta_theta * k2));
 }
 
 uint16_t right_wheel(float dist, float delta_theta) {
   float k1 = 80;
-  float k2 = .4;  
+  float k2 = .6;  
   return (uint16_t) ((k1 * dist) + (delta_theta * k2));
 }
 
