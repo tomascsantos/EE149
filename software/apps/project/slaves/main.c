@@ -64,13 +64,15 @@ static simple_ble_service_t led_service = {{
 static simple_ble_char_t characteristic = {.uuid16 = 0x1090};
 static char display_buffer[BUF_LEN];
 
-int robot_selector;
-float curr_x;
-float curr_y;
-float curr_theta;
-float desired_x;
-float desired_y;
-float msg;
+// int robot_selector;
+// float curr_x;
+// float curr_y;
+// float curr_theta;
+// float desired_x;
+// float desired_y;
+// float msg;
+char* buff[64];
+bool write;
 
 /*
 #define BUF_LEN 17
@@ -127,43 +129,48 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       //display_write(display_buffer, DISPLAY_LINE_0);
       printf("got curr char: %s\n", display_buffer);
   }
-  msg = (float) atof(display_buffer);
-  int count = 0;
-  char delim[] = ":";
-  char temp[64];
-  strcpy(temp, display_buffer);
-  int size = strlen(display_buffer);
-  char *ptr = strtok(temp, delim);
-  while (ptr != NULL) {
-  	printf("start: %s\n", ptr);
+  // msg = (float) atof(display_buffer);
+  // int count = 0;
+  // char delim[] = ":";
+  // char temp[64];
+  // strcpy(temp, display_buffer);
+  // int size = strlen(display_buffer);
+  // char *ptr = strtok(temp, delim);
+  // while (ptr != NULL) {
+  // 	printf("start: %s\n", ptr);
 
-  	if (count == 0) {
-  	  robot_selector = (int) atof(ptr);
-  	}
-  	if (count == 1) {
-  	  curr_x = (float) atof(ptr);
-  	}
-  	if (count == 2) {
-  	  curr_y = (float) atof(ptr);
-  	}
-  	if (count == 3) {
-  	  curr_theta = (float) atof(ptr);
-  	}
-  	if (count == 4) {
-  	  desired_x = (float) atof(ptr);
-  	}
-  	if (count == 5) {
-  	  desired_y = (float) atof(ptr);
-  	}
-  	count++;
-  	ptr = strtok(NULL, delim);
-  	printf("end: %s\n", ptr);
+  // 	if (count == 0) {
+  // 	  robot_selector = (int) atof(ptr);
+  // 	}
+  // 	if (count == 1) {
+  // 	  curr_x = (float) atof(ptr);
+  // 	}
+  // 	if (count == 2) {
+  // 	  curr_y = (float) atof(ptr);
+  // 	}
+  // 	if (count == 3) {
+  // 	  curr_theta = (float) atof(ptr);
+  // 	}
+  // 	if (count == 4) {
+  // 	  desired_x = (float) atof(ptr);
+  // 	}
+  // 	if (count == 5) {
+  // 	  desired_y = (float) atof(ptr);
+  // 	}
+  // 	count++;
+  // 	ptr = strtok(NULL, delim);
+  // 	printf("end: %s\n", ptr);
 
-  }
-  printf("vals: %d, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
-  for(int i = 0; i < 16; i++) {
+  // }
+  // printf("vals: %d, %f, %f, %f\n", robot_selector, curr_x, curr_y, curr_theta);
+  strcpy(buff, display_buffer);
+  printf("copied buff from message, %s", buff);
+  write = 1;
+  for(int i = 0; i < 64; i++) {
     display_buffer[i] = '\0';
   }
+  // stop_gyro();
+  // start_gyro();
 }
 //void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
 //  //p_ble_evt is a struct of type ble_evt_t

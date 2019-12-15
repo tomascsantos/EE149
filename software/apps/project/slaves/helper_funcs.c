@@ -35,16 +35,56 @@
 extern KobukiSensors_t sensors;
 extern float msg;
 
-extern int robot_selector;
-extern float curr_x;
-extern float curr_theta;
-extern float curr_y;
-extern float desired_x;
-extern float desired_y;
+int robot_selector = 0;
+float curr_x = 0;
+float curr_theta = 0;
+float curr_y = 0;
+float desired_x = 0;
+float desired_y = 0;
+extern char* buff;
+extern bool write;
+
+void parse() {
+  printf("buffer being parsed: %s", buff);
+  if (write) {
+    int count = 0;
+    char delim[] = ":";
+    char temp[64];
+    strcpy(temp, buff);
+    char *ptr = strtok(temp, delim);
+    while (ptr != NULL) {
+      printf("start: %s\n", ptr);
+
+      if (count == 0) {
+        robot_selector = (int) atof(ptr);
+      }
+      if (count == 1) {
+        curr_x = (float) atof(ptr);
+      }
+      if (count == 2) {
+        curr_y = (float) atof(ptr);
+      }
+      if (count == 3) {
+        curr_theta = (float) atof(ptr);
+      }
+      if (count == 4) {
+        desired_x = (float) atof(ptr);
+      }
+      if (count == 5) {
+        desired_y = (float) atof(ptr);
+      }
+      count++;
+      ptr = strtok(NULL, delim);
+    }
+    write = 0;
+  }
+  printf("angle after parsing: %f", curr_theta);
+}
+
 
 // returns true when gyro is greater than half the angle
 bool use_heuristic(float gyro, float angle) {
-  return (fabs(gyro) > (fabs(angle) / 2));
+  return (fabs(gyro) > fabs(angle));
 }
 
 bool stop_heuristic(float prev_x, float curr_x) {
@@ -53,17 +93,18 @@ bool stop_heuristic(float prev_x, float curr_x) {
 
 // return speeds for left wheel
 uint16_t left_heuristic(float dist, float gyro, float angle) {
-  float k1 = 70;
+  float k1 = 100;
   float k2 = .5;
   return (uint16_t) ((k1 * dist) - ((angle - gyro) * k2));
 }
 
 //return speeds for right wheel
 uint16_t right_heuristic(float dist, float gyro, float angle) {
-  float k1 = 70;
+  float k1 = 100;
   float k2 = .5;  
   return (uint16_t) ((k1 * dist) + ((angle - gyro) * k2));
 }
+
 
 float get_msg(){
   return msg;
@@ -100,14 +141,14 @@ float find_rotation(float cx, float cy, float dx, float dy, float or) {
 }
 
 uint16_t left_wheel(float dist, float delta_theta) {
-  float k1 = 120;
-  float k2 = .5;
+  float k1 = 80;
+  float k2 = .4;
   return (uint16_t) ((k1 * dist) - (delta_theta * k2));
 }
 
 uint16_t right_wheel(float dist, float delta_theta) {
-  float k1 = 120;
-  float k2 = .5;  
+  float k1 = 80;
+  float k2 = .4;  
   return (uint16_t) ((k1 * dist) + (delta_theta * k2));
 }
 

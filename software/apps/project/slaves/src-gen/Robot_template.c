@@ -12,6 +12,7 @@ static void enact_main_region_ACTIVE_r1_Move(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Stop(Robot_template* handle);
 static void enact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle);
 static void enact_main_region_OFF(Robot_template* handle);
+static void exact_main_region_ACTIVE_r1_Move(Robot_template* handle);
 static void exact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle);
 static void enseq_main_region_ACTIVE_default(Robot_template* handle);
 static void enseq_main_region_ACTIVE_r1_Move_default(Robot_template* handle);
@@ -65,13 +66,15 @@ void robot_template_init(Robot_template* handle)
 	handle->iface.angle = 0.0f;
 	handle->iface.prev_encoder = 0;
 	handle->iface.curr_state = OFF;
-	handle->iface.right_speed = 0;
-	handle->iface.left_speed = 0;
+	handle->iface.right_speed = 100;
+	handle->iface.left_speed = -100;
 	handle->iface.cliff_l = bool_false;
 	handle->iface.cliff_r = bool_false;
 	handle->iface.theta = 0.0f;
 	handle->iface.angle_d = 0.0f;
 	handle->iface.prev_x = 0.0f;
+	handle->iface.temp_theta = 0.0f;
+	handle->iface.temp_angle = 0.0f;
 }
 
 void robot_template_enter(Robot_template* handle)
@@ -325,6 +328,22 @@ void robot_templateIface_set_prev_x(Robot_template* handle, float value)
 {
 	handle->iface.prev_x = value;
 }
+float robot_templateIface_get_temp_theta(const Robot_template* handle)
+{
+	return handle->iface.temp_theta;
+}
+void robot_templateIface_set_temp_theta(Robot_template* handle, float value)
+{
+	handle->iface.temp_theta = value;
+}
+float robot_templateIface_get_temp_angle(const Robot_template* handle)
+{
+	return handle->iface.temp_angle;
+}
+void robot_templateIface_set_temp_angle(Robot_template* handle, float value)
+{
+	handle->iface.temp_angle = value;
+}
 
 /* implementations of all internal functions */
 
@@ -340,6 +359,7 @@ static void enact_main_region_ACTIVE_r1_Move(Robot_template* handle)
 {
 	/* Entry action for state 'Move'. */
 	handle->iface.curr_state = DRIVING;
+	handle->iface.theta = 0;
 	start_gyro();
 }
 
@@ -366,11 +386,20 @@ static void enact_main_region_OFF(Robot_template* handle)
 	handle->iface.pushed = bool_false;
 }
 
+/* Exit action for state 'Move'. */
+static void exact_main_region_ACTIVE_r1_Move(Robot_template* handle)
+{
+	/* Exit action for state 'Move'. */
+	handle->iface.theta = 0;
+	stop_gyro();
+}
+
 /* Exit action for state 'Heuristic'. */
 static void exact_main_region_ACTIVE_r1_Heuristic(Robot_template* handle)
 {
 	/* Exit action for state 'Heuristic'. */
 	stop_gyro();
+	handle->iface.theta = 0;
 }
 
 /* 'default' enter sequence for state ACTIVE */
@@ -444,6 +473,7 @@ static void exseq_main_region_ACTIVE_r1_Move(Robot_template* handle)
 	/* Default exit sequence for state Move */
 	handle->stateConfVector[0] = Robot_template_last_state;
 	handle->stateConfVectorPosition = 0;
+	exact_main_region_ACTIVE_r1_Move(handle);
 }
 
 /* Default exit sequence for state Stop */
@@ -567,11 +597,12 @@ static sc_boolean main_region_ACTIVE_react(Robot_template* handle, const sc_bool
 	if ((did_transition) == (bool_false))
 	{ 
 		handle->iface.pushed = is_button_press();
-		handle->iface.cx = get_cx();
-		handle->iface.cy = get_cy();
-		handle->iface.dx = get_dx();
-		handle->iface.dy = get_dy();
-		handle->iface.angle_d = get_theta();
+		parse();
+		handle->iface.cx = curr_x;
+		handle->iface.cy = curr_y;
+		handle->iface.dx = desired_x;
+		handle->iface.dy = desired_y;
+		handle->iface.angle_d = curr_theta;
 		handle->iface.angle = find_rotation(handle->iface.cx, handle->iface.cy, handle->iface.dx, handle->iface.dy, handle->iface.angle_d);
 		handle->iface.distance = find_dist(handle->iface.cx, handle->iface.cy, handle->iface.dx, handle->iface.dy);
 		print_state(handle->iface.curr_state);
@@ -592,7 +623,7 @@ static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const
 				enseq_main_region_ACTIVE_r1_Stop_default(handle);
 			}  else
 			{
-				if (use_heuristic(handle->iface.theta, handle->iface.angle) == bool_true)
+				if ((1) > (2))
 				{ 
 					exseq_main_region_ACTIVE_r1_Move(handle);
 					enseq_main_region_ACTIVE_r1_Heuristic_default(handle);
@@ -605,10 +636,10 @@ static sc_boolean main_region_ACTIVE_r1_Move_react(Robot_template* handle, const
 	} 
 	if ((did_transition) == (bool_false))
 	{ 
+		handle->iface.theta = read_gyro();
 		handle->iface.left_speed = left_wheel(handle->iface.distance, handle->iface.angle);
 		handle->iface.right_speed = right_wheel(handle->iface.distance, handle->iface.angle);
 		drive_kobuki(handle->iface.left_speed, handle->iface.right_speed);
-		handle->iface.theta = read_gyro();
 		print_angle(handle->iface.theta);
 	} 
 	return did_transition;
@@ -669,7 +700,7 @@ static sc_boolean main_region_ACTIVE_r1_Heuristic_react(Robot_template* handle, 
 		handle->iface.left_speed = left_heuristic(handle->iface.distance, handle->iface.theta, handle->iface.angle);
 		handle->iface.right_speed = right_heuristic(handle->iface.distance, handle->iface.theta, handle->iface.angle);
 		drive_kobuki(handle->iface.left_speed, handle->iface.right_speed);
-		print_dist(handle->iface.distance);
+		print_angle(handle->iface.theta);
 	} 
 	return did_transition;
 }
@@ -694,12 +725,13 @@ static sc_boolean main_region_OFF_react(Robot_template* handle, const sc_boolean
 	if ((did_transition) == (bool_false))
 	{ 
 		stop_kobuki();
+		parse();
 		handle->iface.pushed = is_button_press();
-		handle->iface.cx = get_cx();
-		handle->iface.cy = get_cy();
-		handle->iface.dx = get_dx();
-		handle->iface.dy = get_dy();
-		handle->iface.angle_d = get_theta();
+		handle->iface.cx = curr_x;
+		handle->iface.cy = curr_y;
+		handle->iface.dx = desired_x;
+		handle->iface.dy = desired_y;
+		handle->iface.angle_d = curr_theta;
 		handle->iface.angle = find_rotation(handle->iface.cx, handle->iface.cy, handle->iface.dx, handle->iface.dy, handle->iface.angle_d);
 		print_state(OFF);
 		print_angle(handle->iface.angle);

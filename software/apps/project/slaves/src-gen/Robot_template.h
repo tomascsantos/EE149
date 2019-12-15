@@ -64,6 +64,8 @@ typedef struct
 	float theta;
 	float angle_d;
 	float prev_x;
+	float temp_theta;
+	float temp_angle;
 } Robot_templateIface;
 
 
@@ -164,6 +166,14 @@ extern void robot_templateIface_set_angle_d(Robot_template* handle, float value)
 extern float robot_templateIface_get_prev_x(const Robot_template* handle);
 /*! Sets the value of the variable 'prev_x' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_prev_x(Robot_template* handle, float value);
+/*! Gets the value of the variable 'temp_theta' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_temp_theta(const Robot_template* handle);
+/*! Sets the value of the variable 'temp_theta' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_temp_theta(Robot_template* handle, float value);
+/*! Gets the value of the variable 'temp_angle' that is defined in the default interface scope. */ 
+extern float robot_templateIface_get_temp_angle(const Robot_template* handle);
+/*! Sets the value of the variable 'temp_angle' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_temp_angle(Robot_template* handle, float value);
 
 /*!
  * Checks whether the state machine is active (until 2.4.1 this method was used for states).

@@ -38,6 +38,14 @@ extern float get_dy();
 extern float get_msg();
 extern float get_theta();
 
+extern void parse();
+extern int robot_selector;
+extern float curr_x;
+extern float curr_theta;
+extern float curr_y;
+extern float desired_x;
+extern float desired_y;
+
 extern bool use_heuristic(float gyro, float angle);
 extern bool stop_heuristic(float prev_x, float curr_x);
 extern uint16_t left_heuristic(float dist, float gyro, float angle);
