@@ -26,7 +26,7 @@ extern "C" {
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_MOVE 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_STOP 0
-#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_HEURISTIC 0
+#define SCVI_ROBOT_TEMPLATE_MAIN_REGION_ACTIVE_R1_BACKUP 0
 #define SCVI_ROBOT_TEMPLATE_MAIN_REGION_OFF 0
 
 /*! Enumeration of all states */ 
@@ -36,7 +36,7 @@ typedef enum
 	Robot_template_main_region_ACTIVE,
 	Robot_template_main_region_ACTIVE_r1_Move,
 	Robot_template_main_region_ACTIVE_r1_Stop,
-	Robot_template_main_region_ACTIVE_r1_Heuristic,
+	Robot_template_main_region_ACTIVE_r1_BackUp,
 	Robot_template_main_region_OFF
 } Robot_templateStates;
 
@@ -59,13 +59,12 @@ typedef struct
 	states curr_state;
 	uint16_t right_speed;
 	uint16_t left_speed;
+	sc_boolean cliff_c;
 	sc_boolean cliff_l;
 	sc_boolean cliff_r;
 	float theta;
 	float angle_d;
 	float prev_x;
-	float temp_theta;
-	float temp_angle;
 } Robot_templateIface;
 
 
@@ -146,6 +145,10 @@ extern void robot_templateIface_set_right_speed(Robot_template* handle, uint16_t
 extern uint16_t robot_templateIface_get_left_speed(const Robot_template* handle);
 /*! Sets the value of the variable 'left_speed' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_left_speed(Robot_template* handle, uint16_t value);
+/*! Gets the value of the variable 'cliff_c' that is defined in the default interface scope. */ 
+extern sc_boolean robot_templateIface_get_cliff_c(const Robot_template* handle);
+/*! Sets the value of the variable 'cliff_c' that is defined in the default interface scope. */ 
+extern void robot_templateIface_set_cliff_c(Robot_template* handle, sc_boolean value);
 /*! Gets the value of the variable 'cliff_l' that is defined in the default interface scope. */ 
 extern sc_boolean robot_templateIface_get_cliff_l(const Robot_template* handle);
 /*! Sets the value of the variable 'cliff_l' that is defined in the default interface scope. */ 
@@ -166,14 +169,6 @@ extern void robot_templateIface_set_angle_d(Robot_template* handle, float value)
 extern float robot_templateIface_get_prev_x(const Robot_template* handle);
 /*! Sets the value of the variable 'prev_x' that is defined in the default interface scope. */ 
 extern void robot_templateIface_set_prev_x(Robot_template* handle, float value);
-/*! Gets the value of the variable 'temp_theta' that is defined in the default interface scope. */ 
-extern float robot_templateIface_get_temp_theta(const Robot_template* handle);
-/*! Sets the value of the variable 'temp_theta' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_temp_theta(Robot_template* handle, float value);
-/*! Gets the value of the variable 'temp_angle' that is defined in the default interface scope. */ 
-extern float robot_templateIface_get_temp_angle(const Robot_template* handle);
-/*! Sets the value of the variable 'temp_angle' that is defined in the default interface scope. */ 
-extern void robot_templateIface_set_temp_angle(Robot_template* handle, float value);
 
 /*!
  * Checks whether the state machine is active (until 2.4.1 this method was used for states).

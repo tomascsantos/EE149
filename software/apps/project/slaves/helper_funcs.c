@@ -45,7 +45,6 @@ extern char buff[64];
 extern bool write;
 
 void parse() {
-  printf("buffer being parsed: %s", buff);
   if (write) {
     int count = 0;
     char delim[] = ":";
@@ -69,16 +68,17 @@ void parse() {
       }
       if (count == 4) {
         desired_x = (float) atof(ptr);
+        printf("GOT dx %f\n", desired_x);        
       }
       if (count == 5) {
         desired_y = (float) atof(ptr);
+        printf("GOT dy %f\n", desired_y);
       }
       count++;
       ptr = strtok(NULL, delim);
     }
     write = 0;
   }
-  printf("angle after parsing: %f", curr_theta);
 }
 
 
