@@ -681,8 +681,8 @@ static sc_boolean main_region_ACTIVE_r1_BackUp_react(Robot_template* handle, con
 	if ((did_transition) == (bool_false))
 	{ 
 		drive_kobuki(-80, -80);
+		handle->iface.dist = update_dist(handle->iface.dist, handle->iface.prev_encoder, bool_false);
 		handle->iface.prev_encoder = read_encoder();
-		handle->iface.dist = update_dist(handle->iface.dist, handle->iface.prev_encoder, bool_true);
 		print_dist(handle->iface.dist);
 	} 
 	return did_transition;

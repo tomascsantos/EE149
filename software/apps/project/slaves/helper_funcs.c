@@ -53,7 +53,6 @@ void parse() {
     char *ptr = strtok(temp, delim);
     while (ptr != NULL) {
       printf("start: %s\n", ptr);
-
       if (count == 0) {
         robot_selector = (int) atof(ptr);
       }
@@ -78,6 +77,9 @@ void parse() {
       ptr = strtok(NULL, delim);
     }
     write = 0;
+    if (robot_selector == 6) {
+      desired_y *= -1;
+    }
   }
 }
 

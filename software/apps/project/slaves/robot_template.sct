@@ -15,7 +15,7 @@
           <vertices xsi:type="sgraph:State" xmi:id="_Spnx4ByREeqH3Lem_5r4Sg" specification="entry/&#xA;stop_gyro();&#xA;curr_state = states.STOP&#xA;always/&#xA;stop_kobuki();&#xA;print_dist(distance)&#xA;" name="Stop" incomingTransitions="_cFQl4ByREeqH3Lem_5r4Sg">
             <outgoingTransitions xmi:id="_cgkB0ByREeqH3Lem_5r4Sg" specification="[distance > 0.2]" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
-          <vertices xsi:type="sgraph:State" xmi:id="_sd-BoB9uEeqFrI9EHac4dA" specification="entry/&#xA;curr_state = states.FIND;&#xA;dist = 0&#xA;always/&#xA;drive_kobuki(-80, -80);&#xA;prev_encoder = read_encoder();&#xA;dist = update_dist(dist, prev_encoder, true);&#xA;print_dist(dist)&#xA;exit/&#xA;stop_kobuki()" name="BackUp" incomingTransitions="_gafvEB92EeqFrI9EHac4dA">
+          <vertices xsi:type="sgraph:State" xmi:id="_sd-BoB9uEeqFrI9EHac4dA" specification="entry/&#xA;curr_state = states.FIND;&#xA;dist = 0&#xA;always/&#xA;drive_kobuki(-80, -80);&#xA;dist = update_dist(dist, prev_encoder, false);&#xA;prev_encoder = read_encoder();&#xA;print_dist(dist)&#xA;exit/&#xA;stop_kobuki()" name="BackUp" incomingTransitions="_gafvEB92EeqFrI9EHac4dA">
             <outgoingTransitions xmi:id="_Eg7ZcB9xEeqFrI9EHac4dA" specification="[get_abs(dist) > 0.2]" target="_gJNlkOhyEemQArtQ3KXIEg"/>
           </vertices>
         </regions>
